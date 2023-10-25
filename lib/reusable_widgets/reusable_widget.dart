@@ -9,13 +9,21 @@ Image logoWidget(String imageName) {
   );
 }
 
-TextField reusableTextField(
-  String text,
-  IconData icon,
-  bool isPasswordType,
-  TextEditingController controller,
-) {
-  return TextField(
+TextFormField reusableTextField(String text, IconData icon, bool isPasswordType,
+    TextEditingController controller, String typeOfTextField) {
+  return TextFormField(
+    validator: (value) {
+      if (value!.isEmpty) {
+        if (typeOfTextField.toLowerCase() == "username") {
+          return "Please enter user name";
+        } else if (typeOfTextField.toLowerCase() == "password") {
+          return "Please enter password";
+        } else if (typeOfTextField.toLowerCase() == "email") {
+          return "Please enter email";
+        }
+      }
+      return null;
+    },
     controller: controller,
     obscureText: isPasswordType,
     enableSuggestions: !isPasswordType,
@@ -81,4 +89,27 @@ Container signInSignUpButton(
       ),
     ),
   );
+}
+
+ScaffoldFeatureController<SnackBar, SnackBarClosedReason> show(BuildContext context, String message, String type) {
+  
+  Color backgroundColor = Colors.red;
+  if (type == "success") {
+    backgroundColor = Colors.green;
+  }
+
+  if (type == "warning") {
+    backgroundColor = Colors.yellow;
+  }
+
+  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Center(
+        child: Text(
+      message,
+      style: const TextStyle(color: Colors.white),
+    )),
+    backgroundColor: backgroundColor,
+    behavior: SnackBarBehavior.floating,
+    width: 300 * 0.9,
+  ));
 }

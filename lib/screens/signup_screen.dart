@@ -43,17 +43,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 30,
                 ),
                 reusableTextField("Username", Icons.person_outline, false,
-                    _userNameTextController),
+                    _userNameTextController, "email"),
                 const SizedBox(
                   height: 30,
                 ),
                 reusableTextField(
-                    "Email", Icons.mail_outline, false, _emailTextController),
+                    "Email", Icons.mail_outline, false, _emailTextController, "email"),
                 const SizedBox(
                   height: 30,
                 ),
                 reusableTextField("Password", Icons.lock_outline, true,
-                    _passwordTextController),
+                    _passwordTextController, "password"),
                 const SizedBox(
                   height: 20,
                 ),

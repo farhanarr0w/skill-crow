@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "mongodb": "^6.6.2",
+    "ws": "^8.17.0"
+  },
+  "name": "node-server",
+  "version": "1.0.0",
+  "main": "websocket_server.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node websocket_server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

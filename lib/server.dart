@@ -298,6 +298,9 @@ class CrudFunction {
 
   static approvePayment(String freelancerUsername, String ClientUsername,
       ObjectId contractID, int escrowAmount) async {
+
+        print(freelancerUsername);
+        print(ClientUsername);
     /**
  Freelancer Database:
  - Total Earnings
@@ -1195,7 +1198,7 @@ class CrudFunction {
 
   static Future<void> updateJSS(String userName, String type) async {
   // Find the freelancer by username
-  var userFind = Server.FreelancersList!
+  var userFind = await Server.FreelancersList!
       .firstWhereOrNull((user) => user['UserName'] == userName)!;
 
   // Update JobsCompleted based on the type ("refund" or "completion")
@@ -1216,11 +1219,13 @@ class CrudFunction {
       ? (jobsCompleted / (totalJobs - jobsInProgress)) * 100 
       : 0;
 
+  print(jss);
+
   // Update the freelancer's record in MongoDB
   await Server.FreelancerCollection!.update(
     where.eq("UserName", userName),
     modify
-        .set("JobsInProgress", jobsInProgress.round())
+        .set("JobsInProgress", jobsInProgress)
         .set("JobsCompleted", jobsCompleted)
         .set("JSS", jss),
   );
@@ -1251,7 +1256,7 @@ class CrudFunction {
 
     userFind['Reviews'].add(newReview);
 
-    print(userFind['Reviews']);
+    print('Previous Reviews: ${userFind['Reviews']}');
 
     double totalRating = 0.0;
     int totalReviews = userFind['Reviews'].length;
@@ -1286,8 +1291,8 @@ class CrudFunction {
     //print(userUpdates);
 
     // Update the user's reviews and other fields in MongoDB
-    // await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
-    //     modify.set("Reviews", userFind['Reviews']));
+    await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
+        modify.set("Reviews", userFind['Reviews']));
     // await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
     //     modify.set("JobsInProgress", jobsInProgress.round()));
     // await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
@@ -1295,7 +1300,7 @@ class CrudFunction {
     // await Server.FreelancerCollection!
     //     .update(where.eq("UserName", UserName), modify.set("JSS", jss));
     await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
-        modify.set("FreelancerRating", averageRating.toString()));
+        modify.set("FreelancerRating", averageRating));
 
     // Assuming ClientFind is obtained similarly to UserFind
     var clientFind = Server.ClientsList!

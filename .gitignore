@@ -45,3 +45,6 @@ app.*.map.json
 android/app/google-services.json
 
 /Node Server/node_modules
+
+pubspec.yaml
+pubspec.lock

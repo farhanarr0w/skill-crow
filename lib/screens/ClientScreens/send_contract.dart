@@ -177,47 +177,48 @@ class _SendContractState extends State<SendContract> {
                   children: [
                     TextButton(
                       onPressed: () async {
-                        // if (_formKey.currentState!.validate()) {
-                        //   double payAmount =
-                        //       double.parse(_amountController.text) * 100;
-                        //   int convertedAmount = payAmount.toInt();
-                        //
-                        //   bool _transaction = await Payment.makePayment(
-                        //       convertedAmount.toString());
-                        //
-                        //   if (_transaction == true) {
-                        //     print("Payment is Successful");
-                        //
-                        //     var now = DateTime.now();
-                        //     var bsonDate = DateTime.fromMillisecondsSinceEpoch(
-                        //         now.millisecondsSinceEpoch,
-                        //         isUtc: true);
-                        //
-                        //     CrudFunction.sendContract(
-                        //         CrudFunction.thatProposal['_id'],
-                        //         CrudFunction.thatJob['_id'],
-                        //         CrudFunction.ClientFind['UserName'],
-                        //         CrudFunction.freelancer['UserName'],
-                        //         int.parse(_amountController.text),
-                        //         int.parse(_amountController.text),
-                        //         0,
-                        //         _contractDescriptionController.text,
-                        //         "pending",
-                        //         "not started",
-                        //         null);
-                        //     show(
-                        //         context,
-                        //         "Contract has been sent to the freelancer",
-                        //         "success");
-                        //     Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //             builder: ((context) =>
-                        //                 ClientedJobsView())));
-                        //   } else {
-                        //     print("Payment is Failed");
-                        //   }
-                        // }
+                        if (_formKey.currentState!.validate()) {
+                          // double payAmount =
+                          //     double.parse(_amountController.text) * 100;
+                          //int convertedAmount = payAmount.toInt();
+                        
+                          // bool _transaction = await Payment.makePayment(
+                          //     convertedAmount.toString());
+                        
+                          // if (_transaction == true) {
+                            print("Payment is Successful");
+                        
+                            // var now = DateTime.now();
+                            // var bsonDate = DateTime.fromMillisecondsSinceEpoch(
+                            //     now.millisecondsSinceEpoch,
+                            //     isUtc: true);
+                        
+                            CrudFunction.sendContract(
+                                CrudFunction.thatProposal['_id'],
+                                CrudFunction.thatJob['_id'],
+                                CrudFunction.ClientFind['UserName'],
+                                CrudFunction.freelancer['UserName'],
+                                int.parse(_amountController.text),
+                                int.parse(_amountController.text),
+                                0,
+                                _contractDescriptionController.text,
+                                "pending",
+                                "not started",
+                                null);
+                            show(
+                                context,
+                                "Contract has been sent to the freelancer",
+                                "success");
+                                Navigator.pop(context);
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: ((context) =>
+                            //             ClientedJobsView())));
+                          // } else {
+                          //   print("Payment is Failed");
+                          // }
+                        }
                       },
                       child: Text(
                         "Send",

@@ -194,26 +194,26 @@ class _SendInvitedContractState extends State<SendInvitedContract> {
                         //         now.millisecondsSinceEpoch,
                         //         isUtc: true);
                         //
-                        //     CrudFunction.sendInviteContract(
-                        //         CrudFunction.thatJob['_id'],
-                        //         CrudFunction.ClientFind['UserName'],
-                        //         CrudFunction.freelancer['UserName'],
-                        //         int.parse(_amountController.text),
-                        //         int.parse(_amountController.text),
-                        //         0,
-                        //         _contractDescriptionController.text,
-                        //         "pending",
-                        //         "not started",
-                        //         null);
-                        //     show(
-                        //         context,
-                        //         "Contract has been sent to the freelancer",
-                        //         "success");
-                        //     Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //             builder: ((context) =>
-                        //                 ClientedJobsView())));
+                            CrudFunction.sendInviteContract(
+                                CrudFunction.thatJob['_id'],
+                                CrudFunction.ClientFind['UserName'],
+                                CrudFunction.freelancer['UserName'],
+                                int.parse(_amountController.text),
+                                int.parse(_amountController.text),
+                                0,
+                                _contractDescriptionController.text,
+                                "pending",
+                                "not started",
+                                null);
+                            show(
+                                context,
+                                "Contract has been sent to the freelancer",
+                                "success");
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: ((context) =>
+                                        ClientedJobsView())));
                         //   } else {
                         //     print("Payment is Failed");
                         //   }

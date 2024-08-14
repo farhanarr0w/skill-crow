@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,45 +9,49 @@ import 'package:project_skillcrow/screens/FreelancerScreens/freelancer_home_scre
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../server.dart';
 import '../../user_fetch.dart';
+import '../ClientScreens/client_home.dart';
 import '../ClientScreens/proposals_view_screen.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:web_socket_channel/status.dart' as status;
 
-class FreelancerSideChatScreen extends StatefulWidget {
+class ClientSideChatScreen extends StatefulWidget {
   final String? checkclientfreelancer, proposalidget;
-  const FreelancerSideChatScreen(
+  const ClientSideChatScreen(
       {Key? key,
       required this.checkclientfreelancer,
       required this.proposalidget})
       : super(key: key);
 
   @override
-  State<FreelancerSideChatScreen> createState() =>
-      _FreelancerSideChatScreenState(checkclientfreelancer!, proposalidget!);
+  State<ClientSideChatScreen> createState() =>
+      _ClientSideChatScreenState(checkclientfreelancer!, proposalidget!);
 }
 
-class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
+class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
+
 
   String? checkclientfreelancer;
   String? proposalidget;
-  _FreelancerSideChatScreenState(
-      this.checkclientfreelancer, this.proposalidget);
+  _ClientSideChatScreenState(this.checkclientfreelancer, this.proposalidget);
 
+  String freelancername =
+      CrudFunction.filteredProposals![0]['FreelancerUsername'];
+  
+  String clientname = CrudFunction.filteredProposals![0]['ClientUsername'];
+  mongo.ObjectId jobid = CrudFunction.filteredProposals![0]['JobID'];
+  mongo.ObjectId proposalid = CrudFunction.filteredProposals![0]['_id'];
 
-  String freelancername = CrudFunction.chatfind['FreelancerName'];
-  String clientname = CrudFunction.chatfind['ClientName'];
-  mongo.ObjectId jobid = CrudFunction.chatfind['JobID'];
-  String proposalid = CrudFunction.chatfind['ProposalId'];
-  ScrollController _scrollController = ScrollController();
-
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController messageController = TextEditingController();
   List<String> messages = []; // Store messages
   List<String> rolearray = [];
   List<bool> isfilearray = [];
+
   late WebSocketChannel channel;
   var checkrole = "";
 
   final contentController = TextEditingController();
+
   FilePickerResult? result;
   String? _fileName;
   PlatformFile? pickedFile;
@@ -80,7 +85,7 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
           contentController.text = _fileName!;
           isfilearray.add(true);
           messages.add(base64String!);
-          rolearray.add("Freelancer");
+          rolearray.add("Client");
         });
       }
 
@@ -96,56 +101,70 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
   void initState() {
     super.initState();
     // Initialize WebSocket connection
+
     channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.125:8080/'));
     print('WebSocket connection established');
 
     // Listen for incoming messages
     channel.stream.listen((message) {
-      final data = jsonDecode(message);
-      print('Message received: $data');
-      if (data['operationType'] == 'insert') {
-        if (data['fullDocument'] != null &&
-            data['fullDocument']['Messages'] != null) {
-          setState(() {
-            checkrole = data['fullDocument']['Messages'].last['role'];
-            if (checkrole == clientname) {
-              messages
-                  .add(data['fullDocument']['Messages'].last['messageContent']);
-            }
-            scrollToBottom();
-          });
-        } else {
-          print(
-              'Received data does not contain expected fullDocument or Messages.');
-        }
-      } else if (data['operationType'] == 'update') {
-        if (data['updateDescription'] != null &&
-            data['updateDescription']['updatedFields'] != null) {
-          data['updateDescription']['updatedFields'].forEach((key, value) {
-            if (key.startsWith('Messages.') &&
-                value['messageContent'] != null) {
-              setState(() {
-                checkrole = value['role'];
-                if (checkrole == clientname) {
-                  messages.add(value['messageContent']);
-                  rolearray.add("Client");
-                  if (value['isfile'] == true) {
-                    isfilearray.add(true);
-                  } else {
-                    isfilearray.add(false);
+      try {
+        final data = jsonDecode(message);
+        print('Message received: $data');
+
+        if (data['operationType'] == 'insert') {
+          if (data['fullDocument'] != null &&
+              data['fullDocument']['Messages'] != null) {
+            setState(() {
+              checkrole = data['fullDocument']['Messages'].last['role'];
+              if (checkrole == freelancername) {
+                messages.add(
+                    data['fullDocument']['Messages'].last['messageContent']);
+                rolearray.add("Freelancer"); // Ensure rolearray is updated
+                isfilearray.add(
+                    data['fullDocument']['Messages'].last['isfile'] == true);
+              }
+              scrollToBottom();
+            });
+          } else {
+            print(
+                'Received data does not contain expected fullDocument or Messages.');
+          }
+        } else if (data['operationType'] == 'update') {
+          if (data['updateDescription'] != null &&
+              data['updateDescription']['updatedFields'] != null) {
+            data['updateDescription']['updatedFields'].forEach((key, value) {
+              if (key.startsWith('Messages.') &&
+                  value['messageContent'] != null) {
+                setState(() {
+                  checkrole = value['role'];
+                  if (checkrole == freelancername) {
+                    messages.add(value['messageContent']);
+                    rolearray.add("Freelancer"); // Ensure rolearray is updated
+                    isfilearray.add(value['isfile'] == true);
                   }
-                }
-                scrollToBottom();
-              });
-            }
-          });
-        } else {
-          print(
-              'Received data does not contain expected updateDescription or updatedFields.');
+                  scrollToBottom();
+                });
+              }
+            });
+          } else {
+            print(
+                'Received data does not contain expected updateDescription or updatedFields.');
+          }
         }
+      } catch (e) {
+        print('Error processing message: $e');
       }
     }, onError: (error) {
       print('WebSocket error: $error');
+    });
+    // Scroll to the bottom when the widget is first built
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      scrollToBottom();
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
 
     // Scroll to the bottom when the widget is first built
@@ -175,7 +194,10 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
       curve: Curves.easeOut,
     );
   }
+
+  @override
   Widget build(BuildContext context) {
+
     Server.refresh();
     print(proposalid);
     String sessionfromdatabase;
@@ -198,13 +220,13 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(0, 255, 132, 1),
-        title: Text("Chat With $clientname"),
+        title: Text("Chat With $freelancername"),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => FreelancerHomeScreen()),
+              MaterialPageRoute(builder: (context) => ClientHome()),
               (route) => false,
             );
           },
@@ -224,20 +246,16 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                     // Message from fetched data
                     var message = CrudFunction.chatfind['Messages'][index];
                     bool isClientMessage;
-                    if (message['role'] ==
-                        CrudFunction.chatfind['FreelancerName']) {
+                    if (message['role'] == CrudFunction.chatfind['ClientName']) {
                       isClientMessage = true;
                     } else {
                       isClientMessage = false;
                     }
-
                     Uint8List? bytes;
 
                     if (message['isfile'] == true) {
                       bytes = base64.decode(message['messageContent']);
                     }
-
-                    print('indexcount' + index.toString());
                     return Align(
                       alignment: isClientMessage
                           ? Alignment.centerRight
@@ -298,7 +316,7 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                                   children: [
                                     Image.memory(
                                       bytes!,
-                                      width: 200,
+                                      width: 130,
                                       fit: BoxFit.cover,
                                     ),
                                     SizedBox(height: 5),
@@ -320,8 +338,6 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                       ),
                     );
                   } else {
-                    // Message from new messages
-
                     print(isfilearray);
                     print(messages);
                     print(rolearray);
@@ -336,7 +352,6 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                         role: rolearray[newMessageIndex],
                         isfile: isfilearray[newMessageIndex],
                       );
-                      // Rest of the code
                     }
                   }
                 }
@@ -344,6 +359,7 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
             ),
           ),
           BottomAppBar(
+            height: 100,
             elevation: 3,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
@@ -424,6 +440,9 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                                                 "${now.year}-${_formatNumber(now.month)}-${_formatNumber(now.day)}";
                                             String time =
                                                 "${_formatNumber(now.hour)}:${_formatNumber(now.minute)}:${_formatNumber(now.second)}";
+                                            print('content: ' +
+                                                contentController.text
+                                                    .toString());
                                             if (contentController
                                                 .text.isEmpty) {
                                               showDialog(
@@ -503,6 +522,7 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                   ),
                   Expanded(
                     child: TextFormField(
+                      maxLines: null,
                       controller: messageController,
                       cursorColor: Colors.white,
                       style: const TextStyle(
@@ -558,7 +578,7 @@ class _FreelancerSideChatScreenState extends State<FreelancerSideChatScreen> {
                           print(jobid);
                           print(proposalid);
                           messages.add(messageController.text);
-                          rolearray.add('Freelancer');
+                          rolearray.add('Client');
                           isfilearray.add(false);
                           insertchat(
                               freelancername,
@@ -630,18 +650,18 @@ class MessageBubble extends StatelessWidget {
     if (isfile == true) {
       bytes = base64.decode(message);
     }
-    print(isfile.toString() + '' + message);
     DateTime now = DateTime.now();
     String time =
         "${_formatNumber(now.hour)}:${_formatNumber(now.minute)}:${_formatNumber(now.second)}";
 
+    print('role:' + role);
     bool isClientMessage;
-    if (role == 'Freelancer') {
+    if (role == 'Client') {
       isClientMessage = true;
     } else {
       isClientMessage = false;
     }
-
+    print('isClientMessage:' + isClientMessage.toString());
     return Align(
       alignment: isClientMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -727,7 +747,6 @@ class MessageBubble extends StatelessWidget {
   }
 }
 
-// Helper function to format single-digit numbers with leading zeros
 String _formatNumber(int number) {
   return number.toString().padLeft(2, '0');
 }
@@ -752,13 +771,16 @@ void insertchat(
     message = {
       'messageContent': _messageContent,
       'role': _clientname, // Assuming the client is the sender
-      'time': _time, 'isfile': _isfile,
+      'time': _time,
+      'isfile': _isfile,
     };
+
   } else {
     message = {
       'messageContent': _messageContent,
       'role': _freelancername, // Assuming the client is the sender
-      'time': _time, 'isfile': _isfile,
+      'time': _time,
+      'isfile': _isfile,
     };
   }
   // Check if the session already exists

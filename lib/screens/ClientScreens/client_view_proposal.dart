@@ -8,7 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:collection/collection.dart';
-import 'package:project_skillcrow/screens/Chat/client%20side%20Chat.dart';
+import 'package:project_skillcrow/screens/Chat/client%20side%20Proposal%20Chat.dart';
+import 'package:project_skillcrow/screens/Chat/client_side_chat.dart';
 import 'package:project_skillcrow/screens/ClientScreens/proposals_view_screen.dart';
 import 'package:project_skillcrow/screens/ClientScreens/send_contract.dart';
 import 'package:project_skillcrow/server.dart';
@@ -173,13 +174,23 @@ class _ClientViewProposalState extends State<ClientViewProposal> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ClientSideChatScreen(
+                            builder: (context) => ClientSideChat(
                               checkclientfreelancer: 'Client',
                               proposalidget: CrudFunction.cl_thatProposal['_id']
                                   .toString(),
+                              chatCredentials: {
+                        "FreelancerUsername": CrudFunction.cl_thatProposal['FreelancerUsername'],
+                        "ClientUsername":
+                             CrudFunction
+                                .cl_thatProposal['ClientUsername'],
+                        "JobID": CrudFunction.cl_thatProposal['JobID'],
+                        "_id": CrudFunction.cl_thatProposal['_id'].toString(),
+                        "Session": sess
+                      },
                             ),
                           ),
                         );
+                        
                       },
                       child: Text(
                         'Send Message',

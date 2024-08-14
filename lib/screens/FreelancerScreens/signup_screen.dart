@@ -1,6 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:email_validator/email_validator.dart';
+import 'package:email_validator/email_validator.dart' as Em;
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -130,6 +130,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text('${categories['CategoryName']}')))
                         .toList(),
                   ),
+                  
                   const SizedBox(
                     height: 30,
                   ),
@@ -169,7 +170,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _userNameTextController.text.toLowerCase(),
         _emailTextController.text.toLowerCase());
 
-    _isValid = EmailValidator.validate(_emailTextController.text);
+    _isValid = Em.EmailValidator.validate(_emailTextController.text);
 
     if (uF == 1) {
       show(context, "Username is taken", "error");

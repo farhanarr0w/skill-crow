@@ -14,7 +14,7 @@ import 'package:project_skillcrow/screens/ClientScreens/send_contract.dart';
 import 'package:project_skillcrow/server.dart';
 import 'package:project_skillcrow/user_fetch.dart';
 
-import '../Chat/client side Chat.dart';
+import '../Chat/client side Proposal Chat.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class ProposalsViewScreen extends StatefulWidget {

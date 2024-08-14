@@ -226,7 +226,8 @@ class _ContractsDetailsScreenState extends State<ContractsDetailsScreen> {
                               print('Approve Btn Pressed');
 
                               CrudFunction.approveRefund(
-                                  CrudFunction.jobContract["_id"]);
+                                  CrudFunction.jobContract["_id"],
+                                  CrudFunction.UserFind["UserName"]);
 
                               Navigator.pushAndRemoveUntil(
                                 context,

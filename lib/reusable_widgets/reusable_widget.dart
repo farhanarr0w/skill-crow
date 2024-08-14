@@ -444,7 +444,7 @@ TextFormField AboutField(TextEditingController controller) {
     validator: (value) {
       if (value!.isEmpty) {
         return "Enter About";
-      } else if (value.length < 200) {
+      } else if (value.length < 10) {
         return "About should be more than 200 charactes";
       }
       return null;

@@ -17,7 +17,7 @@ import 'package:collection/collection.dart';
 import 'package:project_skillcrow/user_fetch.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
-import '../Chat/client side Chat.dart';
+import '../Chat/client side Proposal Chat.dart';
 
 List<PlatformFile>? _files;
 var toAddFile;
@@ -585,53 +585,56 @@ class _ClientContractDetailsScreenState
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    for (var reviews in CrudFunction.ClientFind['Reviews'])
-                      if (reviews['contractID'] ==
-                          CrudFunction.jobContract['_id'].toString()) ...[
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Job Title: ${CrudFunction.cl_thatJob['JobTitle']}",
-                                  textAlign: TextAlign.left,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text("${reviews['Name']}"),
-                                    RatingBarIndicator(
-                                      rating:
-                                          double.tryParse(reviews['rating']) ??
-                                              0.0,
-                                      itemCount: 5,
-                                      itemSize: 15,
-                                      itemBuilder: (context, _) => Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  "${reviews['comment']}",
-                                  textAlign: TextAlign.left,
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      ]
-                  ],
+
+                  // (CrudFunction.ClientFind['Reviews'].length>0)
+                    // for (var reviews in CrudFunction.ClientFind['Reviews'])
+                    //   if (reviews['contractID'] ==
+                    //       CrudFunction.jobContract['_id'].toString()) ...[
+                    //     Card(
+                    //       child: Padding(
+                    //         padding: const EdgeInsets.all(15.0),
+                    //         child: Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             Text(
+                    //               "Job Title: ${CrudFunction.cl_thatJob['JobTitle']}",
+                    //               textAlign: TextAlign.left,
+                    //             ),
+                    //             Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceBetween,
+                    //               children: [
+                    //                 Text("${reviews['Name']}"),
+                    //                 RatingBarIndicator(
+                    //                   rating:
+                    //                       double.tryParse(reviews['rating']) ??
+                    //                           0.0,
+                    //                   itemCount: 5,
+                    //                   itemSize: 15,
+                    //                   itemBuilder: (context, _) => Icon(
+                    //                     Icons.star,
+                    //                     color: Colors.amber,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //             SizedBox(
+                    //               height: 5,
+                    //             ),
+                    //             SizedBox(
+                    //               height: 5,
+                    //             ),
+                    //             Text(
+                    //               "${reviews['comment']}",
+                    //               textAlign: TextAlign.left,
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     )
+                    //   ]
+                    
+                    ],
                 ),
               ],
               SizedBox(
@@ -722,18 +725,18 @@ class _ClientContractDetailsScreenState
     String contractid,
     String freelancerUserName,
     String Name,
-    String clientusername,
+    String ClientUsername,
     String comment,
     double rating,
   ) async {
     print(freelancerUserName +
         Name +
-        clientusername +
+        ClientUsername +
         comment +
         rating.toString());
     print("Inserting Reviews");
     CrudFunction.insertReviews(contractid, freelancerUserName, Name,
-        clientusername, comment, rating.toString());
+        ClientUsername, comment, rating.toString());
     CrudFunction.contractCompleted(CrudFunction.jobContract['_id']);
 
     Navigator.push(

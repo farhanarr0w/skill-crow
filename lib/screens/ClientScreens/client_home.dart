@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:project_skillcrow/abc.dart';
+import 'package:project_skillcrow/screens/Chat/client_chats_list_screen.dart';
 import 'package:project_skillcrow/screens/ClientScreens/client_job_post.dart';
 import 'package:project_skillcrow/screens/ClientScreens/client_jobs_view.dart';
 import 'package:project_skillcrow/screens/ClientScreens/view_all_client_contracts.dart';
@@ -31,7 +32,7 @@ class _ClientHome extends State<ClientHome> {
     service = LocalNotificationService();
     service.initialize();
     super.initState();
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.1.100:8080/'));
+    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.125:8080/'));
     print('WebSocket connection established');
 
     channel.stream.listen((message) {
@@ -273,6 +274,50 @@ class _ClientHome extends State<ClientHome> {
                   ),
                 ),
                 const SizedBox(width: 16.0),
+
+                Container(
+                  width: 200,
+                  height: 55,
+                  margin: const EdgeInsets.fromLTRB(0, 10, 0, 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular((90)),
+                  ),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.resolveWith((states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return const Color.fromRGBO(0, 255, 132, 1);
+                        }
+                        return const Color.fromRGBO(0, 255, 132, 1);
+                      }),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                    ),
+                    onPressed: () async {
+                      print("View All Contracts Button Pressed");
+
+                      await CrudFunction.filterClientContracts(
+                          CrudFunction.ClientFind['UserName']);
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>const ClientChatsListScreen()));
+                    },
+                    child: const Text(
+                      "View Chats",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ),
+                ),
+                
                 Container(
                   width: 200,
                   height: 55,

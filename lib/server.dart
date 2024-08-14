@@ -1,18 +1,18 @@
-import 'dart:convert';
+// import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+// import 'dart:ffi';
+// import 'dart:io';
+// import 'package:file_picker/file_picker.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
+// import 'package:flutter/material.dart';
+// import 'package:collection/collection.dart';
 
 const MONGO_URL =
     "mongodb+srv://admin:abc123ef@cluster0.hq1ekox.mongodb.net/SkillCrow?retryWrites=true&w=majority";
 
 const CHAT_COLLECTION = 'Chat';
-var db;
+Db? db;
 
 class Server {
   static var cursor;
@@ -21,6 +21,8 @@ class Server {
   static List<Map<String, dynamic>>? ClientsList;
   static List<Map<String, dynamic>>? adminlist;
   static List<Map<String, dynamic>>? chatlist;
+  static List<Map<String, dynamic>>? freelancerList;
+  static List<Map<String,dynamic>>? languagesList;
 
   static List<Map<String, dynamic>>? JobPostsList;
   static List<Map<String, dynamic>>? JobCategoriesList;
@@ -33,37 +35,40 @@ class Server {
 
   static List<Map<String, dynamic>>? JobCategoriesListsearch;
 
-  static var FreelancerCollection;
-  static var ClientCollection;
-  static var AdminCollection;
-  static var chatcollection;
+  static DbCollection? FreelancerCollection;
+  static DbCollection? ClientCollection;
+  static DbCollection? AdminCollection;
+  static DbCollection? chatcollection;
 
-  static var JobPostCollection;
-  static var JobCategoryCollection;
-  static var JobCategoryCollectionsearch;
-  static var ProposalsCollection;
-  static var WorkHistoryCollection;
-  static var ContractsCollection;
-  static var SkillsCollection;
+  static DbCollection? JobPostCollection;
+  static DbCollection? JobCategoryCollection;
+  static DbCollection? JobCategoryCollectionsearch;
+  static DbCollection? ProposalsCollection;
+  static DbCollection? WorkHistoryCollection;
+  static DbCollection? ContractsCollection;
+  static DbCollection? SkillsCollection;
+  static DbCollection? languageCollection;
 
   static start() async {
     print("App Start");
+    //db= await Mongodb!.getInstance();
     db = await Db.create(MONGO_URL);
-    await db.open();
+    await db!.open();
     inspect(db);
 
-    FreelancerCollection = db.collection("Freelancer");
-    ClientCollection = db.collection("Client");
-    JobPostCollection = db.collection("JobPosts");
-    JobCategoryCollection = db.collection("JobCategories");
-    ProposalsCollection = db.collection("Proposals");
-    WorkHistoryCollection = db.collection("WorkHistory");
-    ContractsCollection = db.collection("Contracts");
-    SkillsCollection = db.collection("Skills");
-    AdminCollection = db.collection("admin");
-    chatcollection = db.collection("Chat");
+    FreelancerCollection = db!.collection("Freelancer");
+    ClientCollection = db!.collection("Client");
+    JobPostCollection = db!.collection("JobPosts");
+    JobCategoryCollection = db!.collection("JobCategories");
+    ProposalsCollection = db!.collection("Proposals");
+    WorkHistoryCollection = db!.collection("WorkHistory");
+    ContractsCollection = db!.collection("Contracts");
+    SkillsCollection = db!.collection("Skills");
+    AdminCollection = db!.collection("admin");
+    chatcollection = db!.collection("Chat");
+    languageCollection= db!.collection("Languages");
 
-    JobCategoryCollectionsearch = db.collection("JobCategories");
+    JobCategoryCollectionsearch = db!.collection("JobCategories");
 
     await refresh();
   }
@@ -73,41 +78,47 @@ class Server {
 
     print("Fetching Start!");
     print('');
-    cursor = await FreelancerCollection.find();
+    cursor = await FreelancerCollection!.find();
     FreelancersList = await cursor.toList();
 
-    cursor = await ClientCollection.find();
+    cursor = await ClientCollection!.find();
     ClientsList = await cursor.toList();
 
-    cursor = await JobPostCollection.find();
+    cursor = await JobPostCollection!.find();
     JobPostsList = await cursor.toList();
 
-    cursor = await AdminCollection.find();
+    cursor = await AdminCollection!.find();
     adminlist = await cursor.toList();
 
-    cursor = await chatcollection.find();
+    cursor = await chatcollection!.find();
     chatlist = await cursor.toList();
 
-    cursor = await JobCategoryCollection.find();
+    cursor = await JobCategoryCollection!.find();
     JobCategoriesList = await cursor.toList();
 
-    cursor = await ProposalsCollection.find();
+    cursor = await ProposalsCollection!.find();
     ProposalsList = await cursor.toList();
 
-    cursor = await WorkHistoryCollection.find();
+    cursor = await WorkHistoryCollection!.find();
     WorkHistoryList = await cursor.toList();
 
-    cursor = await ContractsCollection.find();
+    cursor = await ContractsCollection!.find();
     ContractsList = await cursor.toList();
 
-    cursor = await JobPostCollection.find();
+    cursor = await JobPostCollection!.find();
     JobsList = await cursor.toList();
 
-    cursor = await SkillsCollection.find();
+    cursor = await SkillsCollection!.find();
     SkillsList = await cursor.toList();
 
-    cursor = await JobCategoryCollectionsearch.find();
+    cursor = await JobCategoryCollectionsearch!.find();
     JobCategoriesListsearch = await cursor.toList();
+
+    cursor = await FreelancerCollection!.find();
+    freelancerList = await cursor.toList();
+
+    cursor= await languageCollection!.find();
+    languagesList= await cursor.toList();
 
     print("Fetching Completed!");
 
@@ -158,7 +169,6 @@ class CrudFunction {
 
   static List<Map<String, dynamic>> tempFRProposals = [];
   static List<Map<String, dynamic>>? filteredFRProposals;
-
 
   static List<Map<String, dynamic>> tempFRchats = [];
   static List<Map<String, dynamic>>? filteredFRchats;
@@ -218,22 +228,22 @@ class CrudFunction {
             .firstWhereOrNull((job) => job['_id'] == jobID))!['Invites'] =
         freelancerUsername;
 
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq("_id", jobID),
         modify
             .set("NoOfInvites", noOfInvites)
             .set("Invites", freelancerUsername));
 
-    await Server.FreelancerCollection.update(
+    await Server.FreelancerCollection!.update(
         where.eq("UserName", freelancerUsername), modify.set("Invites", frInv));
 
     print('invite sent');
     Server.refresh();
   }
 
-  static Future<bool> Loginadmin(String username, String pass) async {
+  static Future<bool> Loginadmin(String UserName, String pass) async {
     AdminFind = Server.adminlist
-        ?.firstWhereOrNull((user) => user['UserName'] == username);
+        ?.firstWhereOrNull((user) => user['UserName'] == UserName);
 
     if (AdminFind != null && AdminFind['Password'] == pass) {
       return Future.value(true);
@@ -242,7 +252,7 @@ class CrudFunction {
     }
   }
 
-  static approveRefund(ObjectId contractID) async {
+  static approveRefund(ObjectId contractID, String freelancerUsername) async {
     print('Approving Refund');
     (Server.ContractsList!.firstWhereOrNull(
             (contract) => contract['_id'] == contractID))!['ContractStatus'] =
@@ -251,11 +261,12 @@ class CrudFunction {
     (Server.ContractsList!.firstWhereOrNull(
         (contract) => contract['_id'] == contractID))!['EscrowAmount'] = 0;
 
-    await Server.ContractsCollection.update(where.eq("_id", contractID),
+    await Server.ContractsCollection!.update(where.eq("_id", contractID),
         modify.set("ContractStatus", "refundApproved"));
 
-    await Server.ContractsCollection.update(
-        where.eq("_id", contractID), modify.set("EscrowAmount", 0));
+    await Server.ContractsCollection!
+        .update(where.eq("_id", contractID), modify.set("EscrowAmount", 0));
+    await updateJSS(freelancerUsername, "refund");
     print('Refund Approved');
     Server.refresh();
   }
@@ -266,7 +277,7 @@ class CrudFunction {
             (contract) => contract['_id'] == contractID))!['ContractStatus'] =
         "refundDeclined";
 
-    await Server.ContractsCollection.update(where.eq("_id", contractID),
+    await Server.ContractsCollection!.update(where.eq("_id", contractID),
         modify.set("ContractStatus", "refundDeclined"));
 
     print('Refund Declined');
@@ -279,13 +290,13 @@ class CrudFunction {
             (contract) => contract['_id'] == contractID))!['ContractStatus'] =
         "refundRequested";
 
-    await Server.ContractsCollection.update(where.eq("_id", contractID),
+    await Server.ContractsCollection!.update(where.eq("_id", contractID),
         modify.set("ContractStatus", "refundRequested"));
     print('Refund Requested');
     Server.refresh();
   }
 
-  static approvePayment(String freelancerUsername, String clientUsername,
+  static approvePayment(String freelancerUsername, String ClientUsername,
       ObjectId contractID, int escrowAmount) async {
     /**
  Freelancer Database:
@@ -314,11 +325,11 @@ class CrudFunction {
         (contract) => contract['_id'] == contractID))!['AmountPaid'];
 
     (Server.ClientsList!.firstWhereOrNull(
-            (client) => client['UserName'] == clientUsername))!['TotalSpent'] +=
+            (client) => client['UserName'] == ClientUsername))!['TotalSpent'] +=
         escrowAmount;
 
     tSpent = (Server.ClientsList!.firstWhereOrNull(
-        (client) => client['UserName'] == clientUsername))!['TotalSpent'];
+        (client) => client['UserName'] == ClientUsername))!['TotalSpent'];
 
     (Server.FreelancersList!.firstWhereOrNull((freelancer) =>
             freelancer['UserName'] == freelancerUsername))!['TotalEarnings'] +=
@@ -327,15 +338,16 @@ class CrudFunction {
     tEarn = (Server.FreelancersList!.firstWhereOrNull((freelancer) =>
         freelancer['UserName'] == freelancerUsername))!['TotalEarnings'];
 
-    await Server.ContractsCollection.update(where.eq("_id", contractID),
+    await Server.ContractsCollection!.update(where.eq("_id", contractID),
         modify.set("AmountPaid", amntPaid).set("EscrowAmount", 0));
 
-    await Server.ClientCollection.update(
-        where.eq("UserName", clientUsername), modify.set("TotalSpent", tSpent));
+    await Server.ClientCollection!.update(
+        where.eq("UserName", ClientUsername), modify.set("TotalSpent", tSpent));
 
-    await Server.FreelancerCollection.update(
+    await Server.FreelancerCollection!.update(
         where.eq("UserName", freelancerUsername),
         modify.set("TotalEarnings", tEarn));
+    await updateJSS(freelancerUsername, "payment");
     print('Payment Approved');
     Server.refresh();
   }
@@ -343,7 +355,7 @@ class CrudFunction {
   static submitWork(
       ObjectId contractID, List<Map<String, dynamic>> SubmittedFiles) async {
     print('Submitting Work');
-    await Server.ContractsCollection.update(
+    await Server.ContractsCollection!.update(
         where.eq('_id', contractID),
         modify
             .set('SubmissionStatus', 'submitted')
@@ -356,14 +368,34 @@ class CrudFunction {
     print((Server.ContractsList!.firstWhereOrNull(
         (contract) => contract['_id'] == contractID))!['SubmissionStatus']);
 
+    // var freelancer = await Server.FreelancerCollection!
+    //     .findOne(where.eq("UserName", freelancerUsername));
+    // if (freelancer != null) {
+    //   // Update the local document
+    //   //freelancer['TotalJobs'] = (freelancer['TotalJobs'] ?? 0) + 1;
+    //   freelancer['JobsInProgress'] = (freelancer['JobsInProgress'] ?? 0) - 1;
+    //   freelancer['JobsCompleted']= (freelancer['JobsCompleted']?? 0) + 1;
+
+    //   // Persist the changes back to the database
+    //   await Server.FreelancerCollection!.update(
+    //       where.eq("UserName", freelancerUsername),
+    //       modify
+    //           .set('JobsCompleted', freelancer['JobsCompleted'])
+    //           .set('JobsInProgress', freelancer['JobsInProgress']));
+
+    //   print('Freelancer jobs updated successfully.');
+    // } else {
+    //   print('Freelancer not found.');
+    // }
+
     print('Work Submitted');
     Server.refresh();
   }
 
-  static filterClientContracts(String clientUsername) {
+  static filterClientContracts(String ClientUsername) {
     print("Entered Contracts Filtering");
     for (var contract in Server.ContractsList!) {
-      if (contract['ClientUsername'] == clientUsername) {
+      if (contract['ClientUsername'] == ClientUsername) {
         tempCLContracts.add(contract);
       }
     }
@@ -402,8 +434,8 @@ class CrudFunction {
     print('name ' + pass);
     print('UserName ' + UserName);
 
-    await Server.ClientCollection.update(
-        where.eq("UserName", UserName), modify.set("Password", pass));
+    await Server.ClientCollection!
+        .update(where.eq("UserName", UserName), modify.set("Password", pass));
   }
 
   static editJob(
@@ -417,7 +449,7 @@ class CrudFunction {
       String ExpertiseLevel,
       var PostingDate) async {
     print("Updating Job");
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq('_id', JobID),
         modify
             .set('JobTitle', JobTitle)
@@ -434,10 +466,10 @@ class CrudFunction {
 
   static closeJob(ObjectId JobID) async {
     print('closing Job');
-    await Server.JobPostCollection.update(
-        where.eq("_id", JobID), modify.set("JobStatus", 'closed'));
+    await Server.JobPostCollection!
+        .update(where.eq("_id", JobID), modify.set("JobStatus", 'closed'));
 
-    await Server.ProposalsCollection.deleteMany(where.eq('JobID', JobID));
+    await Server.ProposalsCollection!.deleteMany(where.eq('JobID', JobID));
 
     Server.ProposalsList!.removeWhere((prop) => prop['JobID'] == JobID);
 
@@ -454,7 +486,7 @@ class CrudFunction {
             (contract) => contract['_id'] == contractID))!['ContractStatus'] =
         "completed";
 
-    await Server.ContractsCollection.update(
+    await Server.ContractsCollection!.update(
         where.eq("_id", contractID), modify.set("ContractStatus", "completed"));
 
     print('Contract Completed');
@@ -462,13 +494,13 @@ class CrudFunction {
   }
 
   static declineContract(ObjectId ContractID, ObjectId PropID) async {
-    await Server.ContractsCollection.update(
+    await Server.ContractsCollection!.update(
         where.eq("_id", ContractID), modify.set("ContractStatus", 'declined'));
     (Server.ContractsList!.firstWhereOrNull(
             (contract) => contract['_id'] == ContractID))!['ContractStatus'] =
         'declined';
 
-    await Server.ProposalsCollection.update(where.eq("_id", PropID),
+    await Server.ProposalsCollection!.update(where.eq("_id", PropID),
         modify.set("ProposalStatus", 'ContractDeclined'));
     (Server.ProposalsList!.firstWhereOrNull((prop) => prop['_id'] == PropID))![
         'ProposalStatus'] = 'ContractDeclined';
@@ -477,7 +509,7 @@ class CrudFunction {
   }
 
   static acceptInvitedContract(ObjectId ContractID) async {
-    await Server.ContractsCollection.update(
+    await Server.ContractsCollection!.update(
         where.eq("_id", ContractID), modify.set("ContractStatus", 'started'));
 
     (Server.ContractsList!.firstWhereOrNull(
@@ -487,19 +519,40 @@ class CrudFunction {
     Server.refresh();
   }
 
-  static acceptContract(ObjectId ContractID, ObjectId PropID) async {
-    await Server.ContractsCollection.update(
+  static acceptContract(
+      ObjectId ContractID, ObjectId PropID, String freelancerUsername) async {
+    //print(freelancerUsername);
+    await Server.ContractsCollection!.update(
         where.eq("_id", ContractID), modify.set("ContractStatus", 'started'));
 
     (Server.ContractsList!.firstWhereOrNull(
             (contract) => contract['_id'] == ContractID))!['ContractStatus'] =
         'started';
 
-    await Server.ProposalsCollection.update(where.eq('_id', PropID),
+    await Server.ProposalsCollection!.update(where.eq('_id', PropID),
         modify.set('ProposalStatus', 'ContractStarted'));
 
     (Server.ProposalsList!.firstWhereOrNull((prop) => prop['_id'] == PropID))![
         'ProposalStatus'] = 'ContractStarted';
+
+    var freelancer = await Server.FreelancerCollection!
+        .findOne(where.eq("UserName", freelancerUsername));
+    if (freelancer != null) {
+      // Update the local document
+      freelancer['TotalJobs'] = (freelancer['TotalJobs'] ?? 0) + 1;
+      freelancer['JobsInProgress'] = (freelancer['JobsInProgress'] ?? 0) + 1;
+
+      // Persist the changes back to the database
+      await Server.FreelancerCollection!.update(
+          where.eq("UserName", freelancerUsername),
+          modify
+              .set('TotalJobs', freelancer['TotalJobs'])
+              .set('JobsInProgress', freelancer['JobsInProgress']));
+
+      print('Freelancer jobs updated successfully.');
+    } else {
+      print('Freelancer not found.');
+    }
 
     Server.refresh();
   }
@@ -533,7 +586,7 @@ class CrudFunction {
     };
 
     Server.ContractsList!.add(newContract);
-    Server.ContractsCollection.insertOne(newContract);
+    Server.ContractsCollection!.insertOne(newContract);
 
     Server.refresh();
     print("Contract Sent");
@@ -569,12 +622,12 @@ class CrudFunction {
     };
 
     Server.ContractsList!.add(newContract);
-    Server.ContractsCollection.insertOne(newContract);
+    Server.ContractsCollection!.insertOne(newContract);
 
-    await Server.ProposalsCollection.update(
-        where.eq("_id", PropID), modify.set("ContractSent", true));
+    await Server.ProposalsCollection!
+        .update(where.eq("_id", PropID), modify.set("ContractSent", true));
 
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq('_id', JobID).eq('Proposals._id', PropID),
         modify.set('Proposals.\$.ContractSent', true));
 
@@ -584,9 +637,9 @@ class CrudFunction {
 
   static updateSeeds(String UserName, int UpdatedSeeds) async {
     print("Seeds updating to Database");
-    Server.FreelancerCollection.update(
+    Server.FreelancerCollection!.update(
         where.eq("UserName", UserName), modify.set("Seeds", UpdatedSeeds));
-    print("Seeds Updated!!!");
+    print("Seeds Updated!!");
   }
 
   static viewProposals(ObjectId jobID) {
@@ -602,7 +655,7 @@ class CrudFunction {
     print("Proposals Filtering Complete");
   }
 
-  static getProposals(ObjectId jobID) {
+  static getInvites(dynamic jobID) {
     print("Entered Proposals Filtering");
     for (var proposal in Server.ProposalsList!) {
       if (proposal['_id'] == jobID) {
@@ -614,8 +667,17 @@ class CrudFunction {
     print("Proposals Filtering Complete");
   }
 
-
-
+  static getProposals(dynamic jobID) {
+    print("Entered Proposals Filtering");
+    for (var proposal in Server.ProposalsList!) {
+      if (proposal['_id'] == jobID) {
+        tempProposals.add(proposal);
+      }
+    }
+    filteredProposals = tempProposals;
+    tempProposals = [];
+    print("Proposals Filtering Complete");
+  }
 
   static searchJobsByCategory(String category) {
     print("Entered Filtering for: " + category);
@@ -644,12 +706,77 @@ class CrudFunction {
     print("Proposals Filtering Complete");
   }
 
+  static List<dynamic> findProposalBasedChatsClient(String clientUsername) {
+    var chats =
+        Server.chatlist!.where((chat) => chat['ClientName'] == clientUsername);
+    List clientChats = [];
+
+    chats.forEach((chat) {
+      if (chat["ProposalId"].toString() != "Invited Contract") {
+        clientChats.add(chat);
+      }
+    });
+    print(clientChats);
+    return clientChats;
+  }
+
+  static List<dynamic> findProposalBasedChatsFreelancer(String freelancerUsername) {
+    var chats =
+        Server.chatlist!.where((chat) => chat['FreelancerName'] == freelancerUsername);
+    List clientChats = [];
+
+    chats.forEach((chat) {
+      if (chat["ProposalId"].toString() != "Invited Contract") {
+        clientChats.add(chat);
+      }
+    });
+    print(clientChats);
+    Server.refresh();
+    return clientChats;
+  }
+
+  static List<dynamic> findContractBasedChatsClient(String clientUsername) {
+    var chats =
+        Server.chatlist!.where((chat) => chat['ClientName'] == clientUsername);
+    List clientChats = [];
+
+    chats.forEach((chat) {
+      if (chat["ProposalId"].toString() == "Invited Contract") {
+        clientChats.add(chat);
+      }
+    });
+    print(clientChats);
+    Server.refresh();
+    return clientChats;
+  }
+
+  static List<dynamic> findContractBasedChatsFreelancer(String freelancerUsername) {
+    var chats =
+        Server.chatlist!.where((chat) => chat['FreelancerName'] == freelancerUsername);
+    List clientChats = [];
+
+    chats.forEach((chat) {
+      if (chat["ProposalId"].toString() == "Invited Contract") {
+        clientChats.add(chat);
+      }
+    });
+    print(clientChats);
+    return clientChats;
+  }
+
   static filterchat(String session) {
     print("Entered chat Filtering");
-        chatfind = Server.chatlist?.firstWhereOrNull(
-                (chat) => chat['Session'] == session);
-    print(chatfind);
+    print("Session to find: $session");
+    print("Chat list: ${Server.chatlist}");
+
+    chatfind = Server.chatlist?.firstWhereOrNull((chat) {
+      print("Checking chat: $chat");
+      return chat['Session'].toString() == session;
+    });
+
+    print("Found chat: $chatfind");
     print("Proposals Filtering Complete");
+    Server.refresh();
   }
 
   static searchJobsByCategoryandtitle(String category, String jobTitle) {
@@ -668,6 +795,7 @@ class CrudFunction {
     filteredJobFrsearch = tempJobShowsFrsearch;
     tempJobShowsFrsearch = [];
     print("Filtering Complete");
+    Server.refresh();
   }
 
   static searchJobsByClient(String ClientUsername) {
@@ -689,7 +817,7 @@ class CrudFunction {
 
   static InsertFreelancer(
       String image,
-      String username,
+      String UserName,
       String email,
       String password,
       int phone,
@@ -714,9 +842,9 @@ class CrudFunction {
       int seeds,
       List<Map<String, dynamic>> Reviews,
       List<Map<String, dynamic>> SavedJobs) async {
-    await Server.FreelancerCollection.insertOne({
+    await Server.FreelancerCollection!.insertOne({
       'Image': image,
-      'UserName': username,
+      'UserName': UserName,
       'Email': email,
       'Password': password,
       'Phone': phone,
@@ -735,6 +863,8 @@ class CrudFunction {
       'Country': country,
       'City': city,
       'State': state,
+      'JobsCompleted': 0,
+      'JobsInProgress': 0,
       'Languages': languages,
       'Education': education,
       'Portfolio': portfolio,
@@ -742,12 +872,12 @@ class CrudFunction {
       'Reviews': Reviews,
       'SavedJobs': SavedJobs
     });
-    print("Data Inserted!!!");
+    print("Data Inserted!!");
   }
 
   static InsertClient(
     String image,
-    String username,
+    String UserName,
     String email,
     String password,
     int phone,
@@ -764,9 +894,9 @@ class CrudFunction {
     String CompanyName,
     List<Map<String, dynamic>> Reviews,
   ) async {
-    await Server.ClientCollection.insertOne({
+    await Server.ClientCollection!.insertOne({
       'Image': image,
-      'UserName': username,
+      'UserName': UserName,
       'Email': email,
       'Password': password,
       'Phone': phone,
@@ -783,7 +913,7 @@ class CrudFunction {
       'CompanyName': CompanyName,
       'Reviews': Reviews
     });
-    print("Data Inserted!!!");
+    print("Data Inserted!!");
   }
 
   static Future<void> updateClient(
@@ -803,17 +933,17 @@ class CrudFunction {
     ClientFind['CompanyEmail'] = CompanyEmail;
     ClientFind['CompanyName'] = Companyname;
 
-    Server.ClientCollection.update(
-        where.eq("UserName", UserName), modify.set("FirstName", name));
-    Server.ClientCollection.update(
-        where.eq("UserName", UserName), modify.set("Phone", phone));
-    Server.ClientCollection.update(
-        where.eq("UserName", UserName), modify.set("Image", image));
-    Server.ClientCollection.update(
+    Server.ClientCollection!
+        .update(where.eq("UserName", UserName), modify.set("FirstName", name));
+    Server.ClientCollection!
+        .update(where.eq("UserName", UserName), modify.set("Phone", phone));
+    Server.ClientCollection!
+        .update(where.eq("UserName", UserName), modify.set("Image", image));
+    Server.ClientCollection!.update(
         where.eq("UserName", UserName), modify.set("LastName", Lastname));
-    Server.ClientCollection.update(where.eq("UserName", UserName),
+    Server.ClientCollection!.update(where.eq("UserName", UserName),
         modify.set("CompanyEmail", CompanyEmail));
-    Server.ClientCollection.update(
+    Server.ClientCollection!.update(
         where.eq("UserName", UserName), modify.set("CompanyName", Companyname));
 
     // Server.refresh();
@@ -821,7 +951,7 @@ class CrudFunction {
     //         (user) => user['UserName'] == UserName);
     print(ClientFind['FirstName']);
 
-    print("Profile Updated!!!");
+    print("Profile Updated!!");
   }
 
   static Future<void> updateclientAddress(
@@ -831,19 +961,19 @@ class CrudFunction {
     ClientFind['City'] = _City;
     ClientFind['State'] = _State;
 
-    Server.ClientCollection.update(
+    Server.ClientCollection!.update(
         where.eq("UserName", UserName), modify.set("Country", _Country));
-    Server.ClientCollection.update(
-        where.eq("UserName", UserName), modify.set("City", _City));
-    Server.ClientCollection.update(
-        where.eq("UserName", UserName), modify.set("State", _State));
+    Server.ClientCollection!
+        .update(where.eq("UserName", UserName), modify.set("City", _City));
+    Server.ClientCollection!
+        .update(where.eq("UserName", UserName), modify.set("State", _State));
 
     // Server.refresh();
     // UserFind = Server.FreelancersList?.firstWhereOrNull(
     //         (user) => user['UserName'] == UserName);
     print(ClientFind['FirstName']);
 
-    print("Profile Updated!!!");
+    print("Profile Updated!!");
   }
 
   static void InsertJobPost(
@@ -881,7 +1011,7 @@ class CrudFunction {
     print(newJobPost);
 
     Server.JobPostsList!.add(newJobPost);
-    await Server.JobPostCollection.insertOne(newJobPost);
+    await Server.JobPostCollection!.insertOne(newJobPost);
 
     (Server.ClientsList!.firstWhereOrNull(
         (client) => client['UserName'] == ClientUsername))!['TotalJobs'] += 1;
@@ -894,15 +1024,15 @@ class CrudFunction {
     int jIP = (Server.ClientsList!.firstWhereOrNull(
         (client) => client['UserName'] == ClientUsername))!['JobsInProgress'];
 
-    await Server.ClientCollection.update(where.eq("UserName", ClientUsername),
+    await Server.ClientCollection!.update(where.eq("UserName", ClientUsername),
         modify.set("TotalJobs", tJ).set("JobsInProgress", jIP));
 
-    print("Data Inserted!!!");
+    print("Data Inserted!!");
   }
 
-  static Future<bool> LoginUser(String username, String pass) async {
-    UserFind = Server.FreelancersList?.firstWhereOrNull(
-        (user) => user['UserName'] == username);
+  static Future<bool> LoginUser(String UserName, String pass) async {
+    UserFind = Server.FreelancersList!
+        .firstWhereOrNull((user) => user['UserName'] == UserName)!;
 
     print(Server.chatlist);
 
@@ -912,7 +1042,6 @@ class CrudFunction {
       return Future.value(false);
     }
   }
-
 
   static Future<void> updateuser(String UserName, String name, int phone,
       String image, String cat, String Lastname, String About) async {
@@ -925,25 +1054,25 @@ class CrudFunction {
     UserFind['LastName'] = Lastname;
     UserFind['About'] = About;
 
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("FirstName", name));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("Phone", phone));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("Image", image));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("Title", cat));
-    Server.FreelancerCollection.update(
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("FirstName", name));
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("Phone", phone));
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("Image", image));
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("Title", cat));
+    Server.FreelancerCollection!.update(
         where.eq("UserName", UserName), modify.set("LastName", Lastname));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("About", About));
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("About", About));
 
     // Server.refresh();
     // UserFind = Server.FreelancersList?.firstWhereOrNull(
     //         (user) => user['UserName'] == UserName);
     print(UserFind['FirstName']);
 
-    print("Profile Updated!!!");
+    print("Profile Updated!!");
   }
 
   static Future<void> updateAddress(
@@ -953,19 +1082,19 @@ class CrudFunction {
     UserFind['City'] = _City;
     UserFind['State'] = _State;
 
-    Server.FreelancerCollection.update(
+    Server.FreelancerCollection!.update(
         where.eq("UserName", UserName), modify.set("Country", _Country));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("City", _City));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("State", _State));
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("City", _City));
+    Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("State", _State));
 
     // Server.refresh();
     // UserFind = Server.FreelancersList?.firstWhereOrNull(
     //         (user) => user['UserName'] == UserName);
     print(UserFind['FirstName']);
 
-    print("Profile Updated!!!");
+    print("Profile Updated!!");
   }
 
   static Future<void> insertskill(String UserName, String newSkill) async {
@@ -973,7 +1102,7 @@ class CrudFunction {
 
     UserFind['Skills'].add(newSkill);
 
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
+    Server.FreelancerCollection!.update(where.eq("UserName", UserName),
         modify.set("Skills", UserFind['Skills']));
   }
 
@@ -984,7 +1113,7 @@ class CrudFunction {
     for (int i = 0; i < UserFind['Skills'].length; i++) {
       if (UserFind['Skills'][i].toLowerCase() == previousskill.toLowerCase()) {
         UserFind['Skills'].removeAt(i); // Update the existing skill
-        Server.FreelancerCollection.update(
+        Server.FreelancerCollection!.update(
           where.eq("UserName", UserName),
           modify.pull("Skills", previousskill),
         );
@@ -1003,7 +1132,7 @@ class CrudFunction {
     for (int i = 0; i < UserFind['Skills'].length; i++) {
       if (UserFind['Skills'][i].toLowerCase() == previousskill.toLowerCase()) {
         UserFind['Skills'][i] = newSkill; // Update the existing skill
-        Server.FreelancerCollection.update(
+        Server.FreelancerCollection!.update(
           where.eq("UserName", UserName),
           modify.set("Skills.${i}", newSkill),
         );
@@ -1020,7 +1149,7 @@ class CrudFunction {
 
     UserFind['Languages'].add(newLanguage);
 
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
+    Server.FreelancerCollection!.update(where.eq("UserName", UserName),
         modify.set("Languages", UserFind['Languages']));
   }
 
@@ -1033,7 +1162,7 @@ class CrudFunction {
       if (UserFind['Languages'][i].toLowerCase() ==
           previousLanguage.toLowerCase()) {
         UserFind['Languages'][i] = newLanguage; // Update the existing skill
-        Server.FreelancerCollection.update(
+        Server.FreelancerCollection!.update(
           where.eq("UserName", UserName),
           modify.set("Languages.${i}", newLanguage),
         );
@@ -1048,88 +1177,143 @@ class CrudFunction {
       String UserName, String previousLanguage) async {
     print('New Languages: $previousLanguage');
 
-    bool skillExists = false;
+    //bool skillExists = false;
     for (int i = 0; i < UserFind['Languages'].length; i++) {
       if (UserFind['Languages'][i].toLowerCase() ==
           previousLanguage.toLowerCase()) {
         UserFind['Languages'].removeAt(i); // Update the existing skill
-        Server.FreelancerCollection.update(
+        Server.FreelancerCollection!.update(
           where.eq("UserName", UserName),
           modify.pull("Languages", previousLanguage),
         );
-        skillExists = true;
+        //skillExists = true;
         break;
       }
     }
     print(UserFind['Languages']);
   }
 
+  static Future<void> updateJSS(String userName, String type) async {
+  // Find the freelancer by username
+  var userFind = Server.FreelancersList!
+      .firstWhereOrNull((user) => user['UserName'] == userName)!;
+
+  // Update JobsCompleted based on the type ("refund" or "completion")
+  var jobsCompleted = (type == "refund")
+      ? ((userFind['JobsCompleted'] > 0)
+          ? (userFind['JobsCompleted'] - 1)
+          : 0)
+      : (userFind['JobsCompleted'] + 1);
+
+  // Decrease JobsInProgress when a job is completed or refunded
+  var jobsInProgress = (userFind['JobsInProgress'] > 0)
+      ? (userFind['JobsInProgress'] - 1)
+      : 0;
+
+  // Calculate the new JSS (Job Success Score)
+  var totalJobs = userFind['TotalJobs'];
+  var jss = (totalJobs - jobsInProgress) > 0 
+      ? (jobsCompleted / (totalJobs - jobsInProgress)) * 100 
+      : 0;
+
+  // Update the freelancer's record in MongoDB
+  await Server.FreelancerCollection!.update(
+    where.eq("UserName", userName),
+    modify
+        .set("JobsInProgress", jobsInProgress.round())
+        .set("JobsCompleted", jobsCompleted)
+        .set("JSS", jss),
+  );
+}
+
   static Future<void> insertReviews(String contractid, String UserName,
-      String Name, String clientusername, String comment, String rating) async {
-    UserFind = Server.FreelancersList?.firstWhereOrNull(
-        (user) => user['UserName'] == UserName);
+      String Name, String ClientUsername, String comment, String rating) async {
+    // Find the user in the list
+    var userFind = Server.FreelancersList!
+        .firstWhereOrNull((user) => user['UserName'] == UserName)!;
 
-    print(UserName + Name + clientusername + comment + rating.toString());
+    print('$UserName $Name $ClientUsername $comment $rating');
 
-    var newReviews = {
-      'contractID': contractid,
+    // Create the new review
+    var newReview = {
+      'contractID': contractid, // Add the actual contract ID here
       'Name': Name,
-      'clientUsername': clientusername,
+      'ClientUsername': ClientUsername,
       'comment': comment,
       'rating': rating,
     };
 
-    print(newReviews);
-    print(UserFind);
+    print(newReview);
+    print(userFind);
 
-    print('New Review: $newReviews');
+    // print('New Review: $newReview');
+    // print('Previous Reviews: ${userFind['Reviews']}');
 
-    UserFind['Reviews'].add(newReviews);
-    ClientFind['Reviews'].add(newReviews);
+    userFind['Reviews'].add(newReview);
 
-    print(UserFind['Reviews']);
+    print(userFind['Reviews']);
 
     double totalRating = 0.0;
-    int count = 0;
+    int totalReviews = userFind['Reviews'].length;
 
-    for (var reviews in CrudFunction.UserFind['Reviews']) {
-      var rating = double.tryParse(reviews['rating']) ?? 0.0;
+    for (var review in userFind['Reviews']) {
+      var rating = double.parse(review['rating']);
       totalRating += rating;
-      count++;
     }
 
-    double averageRating = count > 0 ? totalRating / count : 0.0;
+    double averageRating = totalReviews > 0 ? totalRating / totalReviews : 0.0;
 
     print('The average rating is: $averageRating');
 
-    print(UserFind['JobsCompleted'] + 1);
-    int JobsCompleted = UserFind['JobsCompleted'] + 1;
-    int jobsinprogress = UserFind['JobsInProgress'] - 1;
-    var add = JobsCompleted / (UserFind['TotalJobs'] - jobsinprogress);
-    var jss = add * 100;
-    print(UserFind['JSS'] + 1);
-    print(jss);
+    // int jobsCompleted = userFind['JobsCompleted'] + 1;
+    // int jobsInProgress =
+    //     (userFind['JobsInProgress'] > 0) ? (userFind['JobsInProgress'] - 1) : 0;
+    // var add = jobsCompleted / (userFind['TotalJobs'] - jobsInProgress);
+    // var jss = add * 100;
 
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
-        modify.set("Reviews", UserFind['Reviews']));
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
-        modify.set("JobsInProgress", jobsinprogress.round()));
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
-        modify.set("JobsCompleted", JobsCompleted));
-    Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("JSS", jss));
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
-        modify.set("FreelancerRating", averageRating.round()));
+    //print(userFind['JSS'] + 1);
+    //print(jss);
 
-    Server.ClientCollection.update(where.eq("UserName", clientusername),
-        modify.set("Reviews", ClientFind['Reviews']));
-    Server.ClientCollection.update(where.eq("UserName", clientusername),
-        modify.set("JobsInProgress", jobsinprogress));
-    Server.ClientCollection.update(where.eq("UserName", clientusername),
-        modify.set("JobsCompleted", JobsCompleted));
+    // var userUpdates = {
+    //   'Reviews': userFind['Reviews'],
+    //   'JobsInProgress': jobsInProgress.round(),
+    //   'JobsCompleted': jobsCompleted,
+    //   'JSS': jss,
+    //   //'TotalJobs': totalJobs,
+    //   'FreelancerRating': averageRating.toString(),
+    // };
 
-    UserFind = null;
-    print(UserFind);
+    //print(userUpdates);
+
+    // Update the user's reviews and other fields in MongoDB
+    // await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
+    //     modify.set("Reviews", userFind['Reviews']));
+    // await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
+    //     modify.set("JobsInProgress", jobsInProgress.round()));
+    // await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
+    //     modify.set("JobsCompleted", jobsCompleted));
+    // await Server.FreelancerCollection!
+    //     .update(where.eq("UserName", UserName), modify.set("JSS", jss));
+    await Server.FreelancerCollection!.update(where.eq("UserName", UserName),
+        modify.set("FreelancerRating", averageRating.toString()));
+
+    // Assuming ClientFind is obtained similarly to UserFind
+    var clientFind = Server.ClientsList!
+        .firstWhereOrNull((client) => client['UserName'] == ClientUsername)!;
+    clientFind['Reviews'].add(newReview);
+
+    // Update the client's reviews and other fields in MongoDB
+    await Server.ClientCollection!.update(where.eq("UserName", ClientUsername),
+        modify.set("Reviews", clientFind['Reviews']));
+    // await Server.ClientCollection!.update(where.eq("UserName", ClientUsername),
+    //     modify.set("JobsInProgress", jobsInProgress));
+    // await Server.ClientCollection!.update(where.eq("UserName", ClientUsername),
+    //     modify.set("JobsCompleted", jobsCompleted));
+
+    // UserFind = null;
+    // print(UserFind);
+    Server.refresh();
+
   }
 
   static Future<void> insertsavedjobs(String UserName, String jobid,
@@ -1148,7 +1332,7 @@ class CrudFunction {
 
     UserFind['SavedJobs'].add(newsavedjobs);
 
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
+    Server.FreelancerCollection!.update(where.eq("UserName", UserName),
         modify.set("SavedJobs", UserFind['SavedJobs']));
   }
 
@@ -1170,7 +1354,7 @@ class CrudFunction {
           filteredFRJobs!.removeAt(index);
 
           UserFind['SavedJobs'].removeAt(index); // Update the existing skill
-          Server.FreelancerCollection.update(where.eq("UserName", UserName),
+          Server.FreelancerCollection!.update(where.eq("UserName", UserName),
               modify.pull("SavedJobs", newsavedjobs));
         }
       }
@@ -1190,7 +1374,7 @@ class CrudFunction {
 
     UserFind['Education'].add(newEducation);
 
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
+    Server.FreelancerCollection!.update(where.eq("UserName", UserName),
         modify.set("Education", UserFind['Education']));
   }
 
@@ -1203,7 +1387,7 @@ class CrudFunction {
     };
     if (index >= 0 && index < UserFind['Education'].length) {
       UserFind['Education'].removeAt(index); // Update the existing skill
-      Server.FreelancerCollection.update(where.eq("UserName", UserName),
+      Server.FreelancerCollection!.update(where.eq("UserName", UserName),
           modify.pull("Education", newEducation));
     }
 
@@ -1219,7 +1403,7 @@ class CrudFunction {
     };
     if (index >= 0 && index < UserFind['Education'].length) {
       UserFind['Education'][index] = newEducation; // Update the existing skill
-      Server.FreelancerCollection.update(where.eq("UserName", UserName),
+      Server.FreelancerCollection!.update(where.eq("UserName", UserName),
           modify.set("Education.${index}", newEducation));
     }
 
@@ -1235,7 +1419,7 @@ class CrudFunction {
     UserFind['Portfolio'].add(newPortfolioEntry);
 
     print('Updating DB');
-    Server.FreelancerCollection.update(where.eq("UserName", UserName),
+    Server.FreelancerCollection!.update(where.eq("UserName", UserName),
         modify.set("Portfolio", UserFind['Portfolio']));
     print('DB Updated');
   }
@@ -1250,7 +1434,7 @@ class CrudFunction {
     if (index >= 0 && index < UserFind['Portfolio'].length) {
       UserFind['Portfolio'][index] =
           newPortfolioEntry; // Update the existing skill
-      Server.FreelancerCollection.update(where.eq("UserName", UserName),
+      Server.FreelancerCollection!.update(where.eq("UserName", UserName),
           modify.set("Portfolio.${index}", newPortfolioEntry));
     }
 
@@ -1266,7 +1450,7 @@ class CrudFunction {
 
     if (index >= 0 && index < UserFind['Portfolio'].length) {
       UserFind['Portfolio'].removeAt(index); // Update the existing skill
-      Server.FreelancerCollection.update(where.eq("UserName", UserName),
+      Server.FreelancerCollection!.update(where.eq("UserName", UserName),
           modify.pull("Portfolio", newPortfolioEntry));
     }
 
@@ -1277,13 +1461,13 @@ class CrudFunction {
     print('name ' + pass);
     print('UserName ' + UserName);
 
-    await Server.FreelancerCollection.update(
-        where.eq("UserName", UserName), modify.set("Password", pass));
+    await Server.FreelancerCollection!
+        .update(where.eq("UserName", UserName), modify.set("Password", pass));
   }
 
-  static Future<bool> LoginClient(String username, String pass) async {
+  static Future<bool> LoginClient(String UserName, String pass) async {
     ClientFind = Server.ClientsList?.firstWhereOrNull(
-        (client) => client['UserName'] == username);
+        (client) => client['UserName'] == UserName);
 
     if (ClientFind != null && ClientFind['Password'] == pass) {
       return Future.value(true);
@@ -1292,9 +1476,9 @@ class CrudFunction {
     }
   }
 
-  static int Finder(String username, String email) {
+  static int Finder(String UserName, String email) {
     final uNameFind = Server.FreelancersList?.firstWhereOrNull(
-        (user) => user['UserName'] == username);
+        (user) => user['UserName'] == UserName);
     final uEmailFind = Server.FreelancersList?.firstWhereOrNull(
         (user) => user['Email'] == email);
     if (uNameFind != null) {
@@ -1306,9 +1490,9 @@ class CrudFunction {
     }
   }
 
-  static int ClientFinder(String username, String email) {
+  static int ClientFinder(String UserName, String email) {
     final uNameFind = Server.ClientsList?.firstWhereOrNull(
-        (user) => user['UserName'] == username);
+        (user) => user['UserName'] == UserName);
     final uEmailFind =
         Server.ClientsList?.firstWhereOrNull((user) => user['Email'] == email);
     print(uNameFind);
@@ -1343,22 +1527,22 @@ class CrudFunction {
 
     Server.ProposalsList!.add(newProp);
 
-    Server.ProposalsCollection.insertOne(newProp);
+    Server.ProposalsCollection!.insertOne(newProp);
 
     CrudFunction.currentJob!['Proposals'].add(newProp);
 
     CrudFunction.UserFind['Seeds'] -= CrudFunction.currentJob!['SeedsRequired'];
 
-    Server.FreelancerCollection.update(
+    Server.FreelancerCollection!.update(
         where.eq("UserName", CrudFunction.UserFind['UserName']),
         modify.set("Seeds", CrudFunction.UserFind!['Seeds']));
 
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq("_id", JobID),
         modify.set(
             "NoOfProposals", CrudFunction.currentJob!['NoOfProposals'] + 1));
 
-    await Server.JobPostCollection.update(where.eq("_id", JobID),
+    await Server.JobPostCollection!.update(where.eq("_id", JobID),
         modify.set("Proposals", CrudFunction.currentJob!['Proposals']));
 
     Server.refresh();
@@ -1369,8 +1553,8 @@ class CrudFunction {
   static WithdrawProposal(var proposal) async {
     print('Withdrawing Proposal');
 
-    await Server.ProposalsCollection.deleteOne(
-        where.eq('_id', proposal['_id']));
+    await Server.ProposalsCollection!
+        .deleteOne(where.eq('_id', proposal['_id']));
 
     bool abc = Server.ProposalsList!.remove(proposal);
     print(abc);
@@ -1381,10 +1565,10 @@ class CrudFunction {
 
     CrudFunction.fr_thatJob['Proposals'].remove(ab);
 
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq("_id", CrudFunction.fr_thatJob['_id']),
         modify.set("Proposals", CrudFunction.fr_thatJob['Proposals']));
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq("_id", CrudFunction.fr_thatJob['_id']),
         modify.set(
             "NoOfProposals", CrudFunction.fr_thatJob['NoOfProposals'] - 1));
@@ -1428,15 +1612,15 @@ class CrudFunction {
       }
     }
     print('5');
-    await Server.JobPostCollection.update(
+    await Server.JobPostCollection!.update(
         where.eq('_id', jobID),
         modify.set('NoOfProposals',
             Server.JobPostsList![indexOfJob]['NoOfProposals']));
 
-    await Server.JobPostCollection.update(where.eq('_id', jobID),
+    await Server.JobPostCollection!.update(where.eq('_id', jobID),
         modify.set('Proposals', Server.JobPostsList![indexOfJob]['Proposals']));
 
-    await Server.ProposalsCollection.update(
+    await Server.ProposalsCollection!.update(
         where.eq("_id", propID), modify.set("ProposalStatus", 'declined'));
 
     Server.refresh();
@@ -1452,7 +1636,7 @@ class CrudFunction {
       List<Map<String, dynamic>> messages,
       String date,
       String session) async {
-    final collection = db.collection(CHAT_COLLECTION);
+    final collection = db!.collection(CHAT_COLLECTION);
     var _id = ObjectId();
     print(clientname + freelancername + _id.toString());
     await collection.insertOne({
@@ -1465,8 +1649,7 @@ class CrudFunction {
       'Date': date,
       'Session': session,
     });
-    print("Data Inserted!!!");
-
+    print("Data Inserted!!");
   }
 
   static void resetPassword(String email, String pass, bool isClient) async {
@@ -1477,16 +1660,30 @@ class CrudFunction {
 
     if (isClient == false) {
       print('In Freelancer');
-      await Server.FreelancerCollection.update(
-          where.eq("Email", email), modify.set("Password", pass));
+      await Server.FreelancerCollection!
+          .update(where.eq("Email", email), modify.set("Password", pass));
     } else {
       print('In Client');
-      await Server.ClientCollection.update(
-          where.eq("Email", email), modify.set("Password", pass));
+      await Server.ClientCollection!
+          .update(where.eq("Email", email), modify.set("Password", pass));
     }
 
     await Server.refresh();
 
     print("Password Updated");
+  }
+
+  static String? freelancerProfilePic(String freelancerUserName) {
+    var freelancer = Server.freelancerList!
+        .where((free) => free['UserName'] == freelancerUserName);
+    var image;
+    freelancer.forEach((f) {
+      if (f['Image'] != null) {
+        image = f['Image'];
+      }
+    });
+
+    //print("##################### $freelancer");
+    return image;
   }
 }

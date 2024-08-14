@@ -1,5 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:project_skillcrow/screens/Chat/client%20side%20Proposal%20Chat.dart';
+import 'package:project_skillcrow/screens/Chat/client_side_chat.dart';
 import 'package:project_skillcrow/screens/ClientScreens/client_contract_details_screen.dart';
 import 'package:project_skillcrow/screens/ClientScreens/client_home.dart';
 import 'package:project_skillcrow/server.dart';
@@ -41,6 +43,52 @@ class _ViewAllClientContractsState extends State<ViewAllClientContracts> {
             elevation: 3,
             margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: ListTile(
+              trailing: InkWell(
+                onTap: () async {
+                  String session = CrudFunction.filteredCLContracts![index]
+                              ['ClientUsername']
+                          .toString() +
+                      CrudFunction.filteredCLContracts![index]
+                              ['FreelancerUsername']
+                          .toString() +
+                      CrudFunction.filteredCLContracts![index]['ProposalID']
+                          .toString();
+
+                  CrudFunction.filterchat(session);
+                  print(CrudFunction.chatfind);
+                  //print("filtered chats"+filtered_chats);
+                  if (CrudFunction.chatfind == null) {
+                    CrudFunction.InsertChat(
+                        CrudFunction.filteredCLContracts![index]
+                            ['ClientUsername'],
+                        CrudFunction.filteredCLContracts![index]
+                            ['FreelancerUsername'],
+                        CrudFunction.filteredCLContracts![index]['JobID'],
+                        CrudFunction.filteredCLContracts![index]['ProposalID'],
+                        [],
+                        DateTime.now().toString(),
+                        session);
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ClientSideChat(
+                        checkclientfreelancer: 'Client',
+                        proposalidget: CrudFunction.filteredCLContracts![index]['ProposalID']
+                                  .toString(),
+                        chatCredentials: {
+                          "FreelancerUsername": CrudFunction.filteredCLContracts![index]['FreelancerUsername'],
+                          "ClientUsername": CrudFunction.filteredCLContracts![index]['ClientUsername'],
+                          "JobID": CrudFunction.filteredCLContracts![index]['JobID'],
+                          "_id":"Invited Contract",
+                          "Session":session
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child: Icon(Icons.chat),
+              ),
               tileColor: Colors.white,
               title: AutoSizeText(
                 Server.JobPostsList!.firstWhereOrNull((job) =>
@@ -109,7 +157,7 @@ class _ViewAllClientContractsState extends State<ViewAllClientContracts> {
                               ['ContractStatus'] ==
                           'refundApproved' ||
                       CrudFunction.filteredCLContracts![index]
-                      ['ContractStatus'] ==
+                              ['ContractStatus'] ==
                           'completed')
                     TextButton(
                       onPressed: () {

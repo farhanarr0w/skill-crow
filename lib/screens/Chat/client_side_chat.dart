@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -13,31 +14,32 @@ import '../ClientScreens/proposals_view_screen.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:web_socket_channel/status.dart' as status;
 
-class ClientSideChatScreen extends StatefulWidget {
+class ClientSideChat extends StatefulWidget {
   final String? checkclientfreelancer, proposalidget;
-  const ClientSideChatScreen(
-      {Key? key,
+  Map<String,dynamic> chatCredentials= Map<String,dynamic>();
+  ClientSideChat({Key? key,
       required this.checkclientfreelancer,
-      required this.proposalidget})
+      required this.proposalidget,
+      required this.chatCredentials})
       : super(key: key);
 
   @override
-  State<ClientSideChatScreen> createState() =>
-      _ClientSideChatScreenState(checkclientfreelancer!, proposalidget!);
+  State<ClientSideChat> createState() => _ClientSideChatState(checkclientfreelancer!, proposalidget!);
 }
 
-class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
-
+class _ClientSideChatState extends State<ClientSideChat> {
 
   String? checkclientfreelancer;
   String? proposalidget;
-  _ClientSideChatScreenState(this.checkclientfreelancer, this.proposalidget);
-
-  String freelancername =
-      CrudFunction.filteredProposals![0]['FreelancerUsername'];
-  String clientname = CrudFunction.filteredProposals![0]['ClientUsername'];
-  mongo.ObjectId jobid = CrudFunction.filteredProposals![0]['JobID'];
-  mongo.ObjectId proposalid = CrudFunction.filteredProposals![0]['_id'];
+  //Map<String,dynamic> chatCredentials;
+  _ClientSideChatState(this.checkclientfreelancer, this.proposalidget, );
+  
+  
+  //String freelancername = CrudFunction.filteredProposals![0]['FreelancerUsername'].toString();
+  
+  //String clientname = CrudFunction.filteredProposals![0]['ClientUsername'];
+  //mongo.ObjectId jobid = CrudFunction.filteredProposals![0]['JobID'];
+  //mongo.ObjectId proposalid = CrudFunction.filteredProposals![0]['_id'];
 
   final ScrollController _scrollController = ScrollController();
   final TextEditingController messageController = TextEditingController();
@@ -99,7 +101,8 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
   void initState() {
     super.initState();
     // Initialize WebSocket connection
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.1.100:8080/'));
+
+    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.125:8080/'));
     print('WebSocket connection established');
 
     // Listen for incoming messages
@@ -113,7 +116,7 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
               data['fullDocument']['Messages'] != null) {
             setState(() {
               checkrole = data['fullDocument']['Messages'].last['role'];
-              if (checkrole == freelancername) {
+              if (checkrole == widget.chatCredentials['FreelancerUsername'].toString()) {
                 messages.add(
                     data['fullDocument']['Messages'].last['messageContent']);
                 rolearray.add("Freelancer"); // Ensure rolearray is updated
@@ -134,7 +137,7 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
                   value['messageContent'] != null) {
                 setState(() {
                   checkrole = value['role'];
-                  if (checkrole == freelancername) {
+                  if (checkrole == widget.chatCredentials['FreelancerUsername'].toString()) {
                     messages.add(value['messageContent']);
                     rolearray.add("Freelancer"); // Ensure rolearray is updated
                     isfilearray.add(value['isfile'] == true);
@@ -196,7 +199,8 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
   Widget build(BuildContext context) {
 
     Server.refresh();
-    print(proposalid);
+    //CrudFunction.filterchat(widget.chatCredentials['Session']);
+    //print(widget.chatCredentials['_id']);
     String sessionfromdatabase;
     int messagelength;
     if (CrudFunction.chatfind != null) {
@@ -210,14 +214,14 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
     }
 
     DateTime now = DateTime.now();
-    print(checkclientfreelancer);
-    print('currentsession: ' + sessionfromdatabase);
+    //print(checkclientfreelancer);
+    //print('currentsession: ' + sessionfromdatabase);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(0, 255, 132, 1),
-        title: Text("Chat With $freelancername"),
+        title: Text("Chat With ${widget.chatCredentials['FreelancerUsername'].toString()}"),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -466,12 +470,12 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
                                             } else {
                                               //messages.add(contentController.text);
                                               insertchat(
-                                                  freelancername,
-                                                  clientname,
+                                                  widget.chatCredentials['FreelancerUsername'].toString(),
+                                                  widget.chatCredentials['ClientUsername'].toString(),
                                                   base64String.toString(),
                                                   date,
                                                   time,
-                                                  jobid,
+                                                  widget.chatCredentials['JobID'],
                                                   proposalidget!,
                                                   checkclientfreelancer!,
                                                   true);
@@ -568,23 +572,23 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
                           String time =
                               "${_formatNumber(now.hour)}:${_formatNumber(now.minute)}:${_formatNumber(now.second)}";
                           print(messageController.text +
-                              freelancername +
-                              clientname +
+                              widget.chatCredentials['FreelancerUsername'].toString() +
+                              widget.chatCredentials['ClientUsername'].toString() +
                               date +
                               time);
-                          print(jobid);
-                          print(proposalid);
+                          print(widget.chatCredentials['JobID']);
+                          print(widget.chatCredentials['_id']);
                           messages.add(messageController.text);
                           rolearray.add('Client');
                           isfilearray.add(false);
                           insertchat(
-                              freelancername,
-                              clientname,
+                              widget.chatCredentials['FreelancerUsername'].toString(),
+                              widget.chatCredentials['ClientUsername'].toString(),
                               messageController.text,
                               date,
                               time,
-                              jobid,
-                              proposalidget!,
+                              widget.chatCredentials['JobID'],
+                              widget.chatCredentials['_id'],
                               checkclientfreelancer!,
                               false);
                           messageController.clear();

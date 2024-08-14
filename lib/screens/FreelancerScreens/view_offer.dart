@@ -16,6 +16,7 @@ class ViewOffer extends StatefulWidget {
 class _ViewOfferState extends State<ViewOffer> {
   @override
   Widget build(BuildContext context) {
+    
     CrudFunction.fr_thatClient = Server.ClientsList!.firstWhereOrNull(
         (client) =>
             client['UserName'] == CrudFunction.jobContract['ClientUsername']);
@@ -119,7 +120,8 @@ class _ViewOfferState extends State<ViewOffer> {
                         } else {
                           await CrudFunction.acceptContract(
                               CrudFunction.jobContract['_id'],
-                              CrudFunction.jobContract['ProposalID']);
+                              CrudFunction.jobContract['ProposalID'],
+                              CrudFunction.UserFind['UserName']);
                         }
 
                         show(context, "Offer Accepted", 'success');

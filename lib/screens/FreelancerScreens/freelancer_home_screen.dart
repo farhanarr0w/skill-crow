@@ -1,15 +1,16 @@
 import 'dart:convert';
 
-import 'package:auto_size_text/auto_size_text.dart';
+// import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:project_skillcrow/abc.dart';
-import 'package:project_skillcrow/screens/Chat/freelancer_chats.dart';
+import 'package:project_skillcrow/screens/Chat/freelancer_chats_list_screen.dart';
+// import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+// import 'package:project_skillcrow/abc.dart';
+// import 'package:project_skillcrow/screens/Chat/freelancer_chats.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/InsertPortfolio.dart';
-import 'package:project_skillcrow/screens/FreelancerScreens/Savedjobapage.dart';
+// import 'package:project_skillcrow/screens/FreelancerScreens/Savedjobapage.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/ViewAllContracts_screen.dart';
-import 'package:project_skillcrow/screens/FreelancerScreens/invitedJobs.dart';
+// import 'package:project_skillcrow/screens/FreelancerScreens/invitedJobs.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/seeds_purchase_screen.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/freelancer_jobs_apply.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/freelancer_proposals.dart';
@@ -17,14 +18,14 @@ import 'package:project_skillcrow/screens/FreelancerScreens/statspage.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/updateportfolio.dart';
 import 'package:project_skillcrow/screens/welcome_screen.dart';
 import 'package:project_skillcrow/server.dart';
-import 'package:project_skillcrow/user_fetch.dart';
+// import 'package:project_skillcrow/user_fetch.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:collection/collection.dart';
+// import 'package:collection/collection.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../reusable_widgets/notification_api.dart';
 import 'edit_profile_freelancer.dart';
-import 'navigiationforalert.dart';
+// import 'navigiationforalert.dart';
 
 class FreelancerHomeScreen extends StatefulWidget {
   const FreelancerHomeScreen({super.key});
@@ -76,7 +77,7 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
     service = LocalNotificationService();
     service.initialize();
     super.initState();
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.1.100:8080/'));
+    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.125:8080/'));
     print('WebSocket connection established');
 
     channel.stream.listen((message) {
@@ -84,18 +85,17 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
         final data = jsonDecode(message);
         print('Message received: $data');
 
-
         if (data['operationType'] == 'insert') {
           if (data['fullDocument'] != null &&
               data['fullDocument']['Messages'] != null) {
             setState(() {
-              if(UserName != data['fullDocument']['Messages'].last['role']){
+              if (UserName != data['fullDocument']['Messages'].last['role']) {
                 service.showNotification(
                   id: 1, // Use a unique id for each notification
                   title:
-                  'New Message From ${data['fullDocument']['Messages'].last['role']}',
+                      'New Message From ${data['fullDocument']['Messages'].last['role']}',
                   body:
-                  '${data['fullDocument']['Messages'].last['messageContent']}',
+                      '${data['fullDocument']['Messages'].last['messageContent']}',
                 );
               }
             });
@@ -110,7 +110,7 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
               if (key.startsWith('Messages.') &&
                   value['messageContent'] != null) {
                 setState(() {
-                  if(UserName != value['role']){
+                  if (UserName != value['role']) {
                     service.showNotification(
                       id: 2, // Use a unique id for each notification
                       title: 'New Message From ${value['role']}',
@@ -300,6 +300,7 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
     //     },
     //   ),
     // );
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -319,7 +320,7 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(100),
                                     child: Image.memory(
-                                      bytes!,
+                                      bytes,
                                       height: 80,
                                       width: 80,
                                       fit: BoxFit.cover,
@@ -673,15 +674,15 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                               SingleChildScrollView(
                                                 child: Container(
                                                   child: Column(
-                                                    //children: [cardstarted],
-                                                  ),
+                                                      //children: [cardstarted],
+                                                      ),
                                                 ),
                                               ),
                                               SingleChildScrollView(
                                                 child: Container(
                                                   child: Column(
-                                                    //children: [cardcompleted],
-                                                  ),
+                                                      //children: [cardcompleted],
+                                                      ),
                                                 ),
                                               ),
                                             ]))
@@ -933,50 +934,101 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                   children: [
                                                     Form(
                                                       key: _formKey,
-                                                      child: TextFormField(
-                                                        validator: (value) {
-                                                          if (value!.isEmpty) {
-                                                            return "Required";
-                                                          }
-                                                          return null;
-                                                        },
+                                                      // child: TextFormField(
+                                                      //   validator: (value) {
+                                                      //     if (value!.isEmpty) {
+                                                      //       return "Required";
+                                                      //     }
+                                                      //     return null;
+                                                      //   },
+                                                      //   onChanged: (value) {
+                                                      //     skill = value;
+                                                      //   },
+                                                      //   controller:
+                                                      //       insertskillcontroller,
+                                                      //   cursorColor:
+                                                      //       Colors.white,
+                                                      //   style: const TextStyle(
+                                                      //     color: Color.fromRGBO(
+                                                      //         117, 117, 117, 1),
+                                                      //   ),
+                                                      //   decoration:
+                                                      //       InputDecoration(
+                                                      //     suffixIcon: Container(
+                                                      //       height: 60.0,
+                                                      //       width: 60.0,
+                                                      //       //padding: EdgeInsets.all(10),
+                                                      //       decoration: BoxDecoration(
+                                                      //           borderRadius:
+                                                      //               BorderRadius
+                                                      //                   .circular(
+                                                      //                       30),
+                                                      //           border: Border.all(
+                                                      //               width: 2,
+                                                      //               color: Color
+                                                      //                   .fromARGB(
+                                                      //                       255,
+                                                      //                       221,
+                                                      //                       221,
+                                                      //                       221))),
+                                                      //     ),
+                                                      //     prefixIcon: Icon(
+                                                      //       Icons.credit_score,
+                                                      //       color: const Color
+                                                      //           .fromRGBO(117,
+                                                      //           117, 117, 1),
+                                                      //     ),
+                                                      //     labelText:
+                                                      //         "Type Skill",
+                                                      //     labelStyle:
+                                                      //         const TextStyle(
+                                                      //       color:
+                                                      //           Color.fromRGBO(
+                                                      //               117,
+                                                      //               117,
+                                                      //               117,
+                                                      //               1),
+                                                      //     ),
+                                                      //     filled: true,
+                                                      //     floatingLabelBehavior:
+                                                      //         FloatingLabelBehavior
+                                                      //             .never,
+                                                      //     fillColor:
+                                                      //         Color.fromARGB(
+                                                      //                 255,
+                                                      //                 221,
+                                                      //                 221,
+                                                      //                 221)
+                                                      //             .withOpacity(
+                                                      //                 1),
+                                                      //     border:
+                                                      //         OutlineInputBorder(
+                                                      //       borderRadius:
+                                                      //           BorderRadius
+                                                      //               .circular(
+                                                      //                   30),
+                                                      //       borderSide:
+                                                      //           const BorderSide(
+                                                      //               width: 0,
+                                                      //               style: BorderStyle
+                                                      //                   .none),
+                                                      //     ),
+                                                      //   ),
+                                                      // ),
+                                                      child:
+                                                          FormBuilderDropdown(
+                                                        autovalidateMode:
+                                                            AutovalidateMode
+                                                                .disabled,
+                                                        name: 'exchangesource',
+                                                        initialValue: skill,
                                                         onChanged: (value) {
-                                                          skill = value;
+                                                          skill =
+                                                              value.toString();
+                                                          //print(_catTextController);
                                                         },
-                                                        controller:
-                                                            insertskillcontroller,
-                                                        cursorColor:
-                                                            Colors.white,
-                                                        style: const TextStyle(
-                                                          color: Color.fromRGBO(
-                                                              117, 117, 117, 1),
-                                                        ),
                                                         decoration:
                                                             InputDecoration(
-                                                          suffixIcon: Container(
-                                                            height: 60.0,
-                                                            width: 60.0,
-                                                            //padding: EdgeInsets.all(10),
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            30),
-                                                                border: Border.all(
-                                                                    width: 2,
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            221,
-                                                                            221,
-                                                                            221))),
-                                                          ),
-                                                          prefixIcon: Icon(
-                                                            Icons.credit_score,
-                                                            color: const Color
-                                                                .fromRGBO(117,
-                                                                117, 117, 1),
-                                                          ),
                                                           labelText:
                                                               "Type Skill",
                                                           labelStyle:
@@ -1012,7 +1064,29 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                                     style: BorderStyle
                                                                         .none),
                                                           ),
+                                                          prefixIcon: Icon(
+                                                            Icons.credit_score,
+                                                            color: const Color
+                                                                .fromRGBO(117,
+                                                                117, 117, 1),
+                                                          ),
                                                         ),
+                                                        validator:
+                                                            FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required()
+                                                        ]),
+                                                        items:
+                                                            filterSkillsWhichIsNotAdded()!
+                                                                .map((skill) {
+                                                          return DropdownMenuItem(
+                                                            value: skill[
+                                                                'SkillName'],
+                                                            child: Text(
+                                                                '${skill['SkillName']}'),
+                                                          );
+                                                        }).toList(),
                                                       ),
                                                     ),
                                                     Row(
@@ -1090,9 +1164,9 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                   context: context,
                                   pageBuilder: (context, anim1, anim2) {
                                     return Align(
-                                      alignment: Alignment.bottomCenter,
+                                      alignment: Alignment.center,
                                       child: SizedBox(
-                                        height: 300,
+                                        height: 500,
                                         child: Padding(
                                           padding: const EdgeInsets.only(
                                               bottom: 50, left: 12, right: 12),
@@ -1114,59 +1188,113 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                     children: [
                                                       Form(
                                                         key: _formKey,
-                                                        child: TextFormField(
-                                                          validator: (value) {
-                                                            if (value!
-                                                                .isEmpty) {
-                                                              return "Required";
-                                                            }
-                                                            return null;
-                                                          },
+                                                        // child: TextFormField(
+                                                        //   validator: (value) {
+                                                        //     if (value!
+                                                        //         .isEmpty) {
+                                                        //       return "Required";
+                                                        //     }
+                                                        //     return null;
+                                                        //   },
+                                                        //   onChanged: (value) {
+                                                        //     updateskillcontroller
+                                                        //         .text = value;
+                                                        //   },
+                                                        //   initialValue:
+                                                        //       updateskillcontroller
+                                                        //           .text,
+                                                        //   cursorColor:
+                                                        //       Colors.white,
+                                                        //   style:
+                                                        //       const TextStyle(
+                                                        //     color:
+                                                        //         Color.fromRGBO(
+                                                        //             117,
+                                                        //             117,
+                                                        //             117,
+                                                        //             1),
+                                                        //   ),
+                                                        //   decoration:
+                                                        //       InputDecoration(
+                                                        //     suffixIcon:
+                                                        //         Container(
+                                                        //       height: 60.0,
+                                                        //       width: 60.0,
+                                                        //       //padding: EdgeInsets.all(10),
+                                                        //       decoration: BoxDecoration(
+                                                        //           borderRadius:
+                                                        //               BorderRadius
+                                                        //                   .circular(
+                                                        //                       30),
+                                                        //           border: Border.all(
+                                                        //               width: 2,
+                                                        //               color: Color.fromARGB(
+                                                        //                   255,
+                                                        //                   221,
+                                                        //                   221,
+                                                        //                   221))),
+                                                        //     ),
+                                                        //     prefixIcon: Icon(
+                                                        //       Icons
+                                                        //           .credit_score,
+                                                        //       color: const Color
+                                                        //           .fromRGBO(117,
+                                                        //           117, 117, 1),
+                                                        //     ),
+                                                        //     labelStyle:
+                                                        //         const TextStyle(
+                                                        //       color: Color
+                                                        //           .fromRGBO(
+                                                        //               117,
+                                                        //               117,
+                                                        //               117,
+                                                        //               1),
+                                                        //     ),
+                                                        //     filled: true,
+                                                        //     floatingLabelBehavior:
+                                                        //         FloatingLabelBehavior
+                                                        //             .never,
+                                                        //     fillColor: Color
+                                                        //             .fromARGB(
+                                                        //                 255,
+                                                        //                 221,
+                                                        //                 221,
+                                                        //                 221)
+                                                        //         .withOpacity(1),
+                                                        //     border:
+                                                        //         OutlineInputBorder(
+                                                        //       borderRadius:
+                                                        //           BorderRadius
+                                                        //               .circular(
+                                                        //                   30),
+                                                        //       borderSide:
+                                                        //           const BorderSide(
+                                                        //               width: 0,
+                                                        //               style: BorderStyle
+                                                        //                   .none),
+                                                        //     ),
+                                                        //   ),
+                                                        // ),
+                                                        child:
+                                                            FormBuilderDropdown(
+                                                          autovalidateMode:
+                                                              AutovalidateMode
+                                                                  .disabled,
+                                                          name:
+                                                              'exchangesource',
+                                                          initialValue: skill,
                                                           onChanged: (value) {
                                                             updateskillcontroller
-                                                                .text = value;
+                                                                    .text =
+                                                                value
+                                                                    .toString();
+                                                            //print(_catTextController);
                                                           },
-                                                          initialValue:
-                                                              updateskillcontroller
-                                                                  .text,
-                                                          cursorColor:
-                                                              Colors.white,
-                                                          style:
-                                                              const TextStyle(
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                    117,
-                                                                    117,
-                                                                    117,
-                                                                    1),
-                                                          ),
                                                           decoration:
                                                               InputDecoration(
-                                                            suffixIcon:
-                                                                Container(
-                                                              height: 60.0,
-                                                              width: 60.0,
-                                                              //padding: EdgeInsets.all(10),
-                                                              decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              30),
-                                                                  border: Border.all(
-                                                                      width: 2,
-                                                                      color: Color.fromARGB(
-                                                                          255,
-                                                                          221,
-                                                                          221,
-                                                                          221))),
-                                                            ),
-                                                            prefixIcon: Icon(
-                                                              Icons
-                                                                  .credit_score,
-                                                              color: const Color
-                                                                  .fromRGBO(117,
-                                                                  117, 117, 1),
-                                                            ),
+                                                            labelText:
+                                                                updateskillcontroller
+                                                                    .text,
                                                             labelStyle:
                                                                 const TextStyle(
                                                               color: Color
@@ -1199,7 +1327,30 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                                       style: BorderStyle
                                                                           .none),
                                                             ),
+                                                            prefixIcon: Icon(
+                                                              Icons
+                                                                  .credit_score,
+                                                              color: const Color
+                                                                  .fromRGBO(117,
+                                                                  117, 117, 1),
+                                                            ),
                                                           ),
+                                                          validator:
+                                                              FormBuilderValidators
+                                                                  .compose([
+                                                            FormBuilderValidators
+                                                                .required()
+                                                          ]),
+                                                          items:
+                                                              filterSkillsWhichIsNotAdded()!
+                                                                  .map((skill) {
+                                                            return DropdownMenuItem(
+                                                              value: skill[
+                                                                  'SkillName'],
+                                                              child: Text(
+                                                                  '${skill['SkillName']}'),
+                                                            );
+                                                          }).toList(),
                                                         ),
                                                       ),
                                                       Row(
@@ -1323,54 +1474,191 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                     const EdgeInsets.all(20),
                                                 child: Column(
                                                   children: [
+                                                    // Form(
+                                                    //   key: _formKey,
+                                                    //   child: TextFormField(
+                                                    //     validator: (value) {
+                                                    //       if (value!.isEmpty) {
+                                                    //         return "Required";
+                                                    //       }
+                                                    //       return null;
+                                                    //     },
+                                                    //     onChanged: (value) {
+                                                    //       language = value;
+                                                    //     },
+                                                    //     controller:
+                                                    //         insertlanguagecontroller,
+                                                    //     cursorColor:
+                                                    //         Colors.white,
+                                                    //     style: const TextStyle(
+                                                    //       color: Color.fromRGBO(
+                                                    //           117, 117, 117, 1),
+                                                    //     ),
+                                                    //     decoration:
+                                                    //         InputDecoration(
+                                                    //       suffixIcon: Container(
+                                                    //         height: 60.0,
+                                                    //         width: 60.0,
+                                                    //         //padding: EdgeInsets.all(10),
+                                                    //         decoration: BoxDecoration(
+                                                    //             borderRadius:
+                                                    //                 BorderRadius
+                                                    //                     .circular(
+                                                    //                         30),
+                                                    //             border: Border.all(
+                                                    //                 width: 2,
+                                                    //                 color: Color
+                                                    //                     .fromARGB(
+                                                    //                         255,
+                                                    //                         221,
+                                                    //                         221,
+                                                    //                         221))),
+                                                    //       ),
+                                                    //       prefixIcon: Icon(
+                                                    //         Icons.credit_score,
+                                                    //         color: const Color
+                                                    //             .fromRGBO(117,
+                                                    //             117, 117, 1),
+                                                    //       ),
+                                                    //       labelText:
+                                                    //           "Type Language",
+                                                    //       labelStyle:
+                                                    //           const TextStyle(
+                                                    //         color:
+                                                    //             Color.fromRGBO(
+                                                    //                 117,
+                                                    //                 117,
+                                                    //                 117,
+                                                    //                 1),
+                                                    //       ),
+                                                    //       filled: true,
+                                                    //       floatingLabelBehavior:
+                                                    //           FloatingLabelBehavior
+                                                    //               .never,
+                                                    //       fillColor:
+                                                    //           Color.fromARGB(
+                                                    //                   255,
+                                                    //                   221,
+                                                    //                   221,
+                                                    //                   221)
+                                                    //               .withOpacity(
+                                                    //                   1),
+                                                    //       border:
+                                                    //           OutlineInputBorder(
+                                                    //         borderRadius:
+                                                    //             BorderRadius
+                                                    //                 .circular(
+                                                    //                     30),
+                                                    //         borderSide:
+                                                    //             const BorderSide(
+                                                    //                 width: 0,
+                                                    //                 style: BorderStyle
+                                                    //                     .none),
+                                                    //       ),
+                                                    //     ),
+                                                    //   ),
+                                                    // ),
+
                                                     Form(
                                                       key: _formKey,
-                                                      child: TextFormField(
-                                                        validator: (value) {
-                                                          if (value!.isEmpty) {
-                                                            return "Required";
-                                                          }
-                                                          return null;
-                                                        },
+                                                      // child: TextFormField(
+                                                      //   validator: (value) {
+                                                      //     if (value!.isEmpty) {
+                                                      //       return "Required";
+                                                      //     }
+                                                      //     return null;
+                                                      //   },
+                                                      //   onChanged: (value) {
+                                                      //     skill = value;
+                                                      //   },
+                                                      //   controller:
+                                                      //       insertskillcontroller,
+                                                      //   cursorColor:
+                                                      //       Colors.white,
+                                                      //   style: const TextStyle(
+                                                      //     color: Color.fromRGBO(
+                                                      //         117, 117, 117, 1),
+                                                      //   ),
+                                                      //   decoration:
+                                                      //       InputDecoration(
+                                                      //     suffixIcon: Container(
+                                                      //       height: 60.0,
+                                                      //       width: 60.0,
+                                                      //       //padding: EdgeInsets.all(10),
+                                                      //       decoration: BoxDecoration(
+                                                      //           borderRadius:
+                                                      //               BorderRadius
+                                                      //                   .circular(
+                                                      //                       30),
+                                                      //           border: Border.all(
+                                                      //               width: 2,
+                                                      //               color: Color
+                                                      //                   .fromARGB(
+                                                      //                       255,
+                                                      //                       221,
+                                                      //                       221,
+                                                      //                       221))),
+                                                      //     ),
+                                                      //     prefixIcon: Icon(
+                                                      //       Icons.credit_score,
+                                                      //       color: const Color
+                                                      //           .fromRGBO(117,
+                                                      //           117, 117, 1),
+                                                      //     ),
+                                                      //     labelText:
+                                                      //         "Type Skill",
+                                                      //     labelStyle:
+                                                      //         const TextStyle(
+                                                      //       color:
+                                                      //           Color.fromRGBO(
+                                                      //               117,
+                                                      //               117,
+                                                      //               117,
+                                                      //               1),
+                                                      //     ),
+                                                      //     filled: true,
+                                                      //     floatingLabelBehavior:
+                                                      //         FloatingLabelBehavior
+                                                      //             .never,
+                                                      //     fillColor:
+                                                      //         Color.fromARGB(
+                                                      //                 255,
+                                                      //                 221,
+                                                      //                 221,
+                                                      //                 221)
+                                                      //             .withOpacity(
+                                                      //                 1),
+                                                      //     border:
+                                                      //         OutlineInputBorder(
+                                                      //       borderRadius:
+                                                      //           BorderRadius
+                                                      //               .circular(
+                                                      //                   30),
+                                                      //       borderSide:
+                                                      //           const BorderSide(
+                                                      //               width: 0,
+                                                      //               style: BorderStyle
+                                                      //                   .none),
+                                                      //     ),
+                                                      //   ),
+                                                      // ),
+
+                                                      child:
+                                                          FormBuilderDropdown(
+                                                        autovalidateMode:
+                                                            AutovalidateMode
+                                                                .disabled,
+                                                        name: 'exchangesource',
+                                                        initialValue: language,
                                                         onChanged: (value) {
-                                                          language = value;
+                                                          language =
+                                                              value.toString();
+                                                          //print(_catTextController);
                                                         },
-                                                        controller:
-                                                            insertlanguagecontroller,
-                                                        cursorColor:
-                                                            Colors.white,
-                                                        style: const TextStyle(
-                                                          color: Color.fromRGBO(
-                                                              117, 117, 117, 1),
-                                                        ),
                                                         decoration:
                                                             InputDecoration(
-                                                          suffixIcon: Container(
-                                                            height: 60.0,
-                                                            width: 60.0,
-                                                            //padding: EdgeInsets.all(10),
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            30),
-                                                                border: Border.all(
-                                                                    width: 2,
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            221,
-                                                                            221,
-                                                                            221))),
-                                                          ),
-                                                          prefixIcon: Icon(
-                                                            Icons.credit_score,
-                                                            color: const Color
-                                                                .fromRGBO(117,
-                                                                117, 117, 1),
-                                                          ),
                                                           labelText:
-                                                              "Type Language",
+                                                              "Select Language",
                                                           labelStyle:
                                                               const TextStyle(
                                                             color:
@@ -1404,9 +1692,33 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                                     style: BorderStyle
                                                                         .none),
                                                           ),
+                                                          prefixIcon: Icon(
+                                                            Icons.credit_score,
+                                                            color: const Color
+                                                                .fromRGBO(117,
+                                                                117, 117, 1),
+                                                          ),
                                                         ),
+                                                        validator:
+                                                            FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required()
+                                                        ]),
+                                                        items:
+                                                            filterLanguagesWhichIsNotAdded()!
+                                                                .map(
+                                                                    (language) {
+                                                          return DropdownMenuItem(
+                                                            value: language[
+                                                                'language'],
+                                                            child: Text(
+                                                                '${language['language']}'),
+                                                          );
+                                                        }).toList(),
                                                       ),
                                                     ),
+
                                                     Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -2467,7 +2779,8 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => StatsPageFreelancer()));
+                                builder: (context) =>
+                                    const StatsPageFreelancer()));
                       },
                       child: const Text(
                         "Stats",
@@ -2508,6 +2821,41 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                       },
                       child: const Text(
                         "Apply For a Job",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 43, 43, 43),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith((states) {
+                          if (states.contains(MaterialState.pressed)) {
+                            return const Color.fromRGBO(0, 255, 132, 1);
+                          }
+                          return const Color.fromRGBO(0, 255, 132, 1);
+                        }),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    ElevatedButton(
+                      onPressed: () async {
+                        print("view chats Pressed");
+                        CrudFunction.searchJobsByCategory(
+                            CrudFunction.UserFind['Title']);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    FreelancerChatsListScreen()));
+                      },
+                      child: const Text(
+                        "View Chats",
                         style: TextStyle(
                             color: Color.fromARGB(255, 43, 43, 43),
                             fontWeight: FontWeight.bold,
@@ -2803,6 +3151,36 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Education Deleted")),
     );
+  }
+
+  List<Map<String, dynamic>>? filterSkillsWhichIsNotAdded() {
+    // Create a growable list instead of a fixed-length list
+    var userSkillWhichNotAdded = <Map<String, dynamic>>[];
+    var skillsInDb = Server.SkillsList!.toList();
+    var userSkills = CrudFunction.UserFind['Skills'].cast<String>();
+
+    for (var skillInDb in skillsInDb) {
+      if (!userSkills.contains(skillInDb['SkillName'])) {
+        userSkillWhichNotAdded.add({'SkillName': skillInDb['SkillName']});
+      }
+    }
+
+    return userSkillWhichNotAdded;
+  }
+
+  List<Map<String, dynamic>>? filterLanguagesWhichIsNotAdded() {
+    // Create a growable list instead of a fixed-length list
+    var userLanguagesWhichNotAdded = <Map<String, dynamic>>[];
+    var languagesInDb = Server.languagesList!.toList();
+    var userLanguage = CrudFunction.UserFind['Languages'].cast<String>();
+
+    for (var languageInDb in languagesInDb) {
+      if (!userLanguage.contains(languageInDb['language'])) {
+        userLanguagesWhichNotAdded.add({'language': languageInDb['language']});
+      }
+    }
+
+    return userLanguagesWhichNotAdded;
   }
 
   void deletePortfolio(String image, String title, int index) async {

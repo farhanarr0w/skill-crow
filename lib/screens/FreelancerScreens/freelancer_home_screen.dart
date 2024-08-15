@@ -10,6 +10,7 @@ import 'package:project_skillcrow/screens/Chat/freelancer_chats_list_screen.dart
 import 'package:project_skillcrow/screens/FreelancerScreens/InsertPortfolio.dart';
 // import 'package:project_skillcrow/screens/FreelancerScreens/Savedjobapage.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/ViewAllContracts_screen.dart';
+import 'package:project_skillcrow/screens/FreelancerScreens/components/work_history_tab_view.dart';
 // import 'package:project_skillcrow/screens/FreelancerScreens/invitedJobs.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/seeds_purchase_screen.dart';
 import 'package:project_skillcrow/screens/FreelancerScreens/freelancer_jobs_apply.dart';
@@ -673,18 +674,15 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
                                                 TabBarView(children: <Widget>[
                                               SingleChildScrollView(
                                                 child: Container(
-                                                  child: Column(
-                                                      //children: [cardstarted],
-                                                      ),
-                                                ),
+                                                  child: WorkHistoryTabView(submissionStatus: "pending", contractStatus: "started",),
+                                              ),
                                               ),
                                               SingleChildScrollView(
                                                 child: Container(
-                                                  child: Column(
-                                                      //children: [cardcompleted],
-                                                      ),
-                                                ),
+                                                  child: WorkHistoryTabView(submissionStatus: "submitted", contractStatus: "completed",),
                                               ),
+                                              ),  
+
                                             ]))
                                       ])),
                             ],

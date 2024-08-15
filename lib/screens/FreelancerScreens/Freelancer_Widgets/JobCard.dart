@@ -20,7 +20,7 @@ class JobCard extends StatelessWidget {
     bool check = false;
 
 
-    if (CrudFunction.filteredJobsFr!.length > 0)
+    if (CrudFunction.filteredJobsFr!.length > 0) {
       return ListView.builder(
         itemCount: CrudFunction.filteredJobsFr!.length,
         itemBuilder: (context, index) {
@@ -256,7 +256,7 @@ class JobCard extends StatelessWidget {
           );
         },
       );
-    else
+    } else
       return Center(
           child: Text(
         'No jobs in this category',

@@ -227,6 +227,7 @@ class _ViewAllClientContractsState extends State<ViewAllClientContracts> {
               ),
             ),
           );
+        
         },
       ),
     );

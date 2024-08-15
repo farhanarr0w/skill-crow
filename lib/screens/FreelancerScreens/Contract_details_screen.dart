@@ -584,6 +584,7 @@ class _ContractsDetailsScreenState extends State<ContractsDetailsScreen> {
                             ),
                           ),
                         )
+                      
                       ]
                   ],
                 ),

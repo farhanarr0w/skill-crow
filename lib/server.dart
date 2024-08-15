@@ -22,7 +22,7 @@ class Server {
   static List<Map<String, dynamic>>? adminlist;
   static List<Map<String, dynamic>>? chatlist;
   static List<Map<String, dynamic>>? freelancerList;
-  static List<Map<String,dynamic>>? languagesList;
+  static List<Map<String, dynamic>>? languagesList;
 
   static List<Map<String, dynamic>>? JobPostsList;
   static List<Map<String, dynamic>>? JobCategoriesList;
@@ -66,7 +66,7 @@ class Server {
     SkillsCollection = db!.collection("Skills");
     AdminCollection = db!.collection("admin");
     chatcollection = db!.collection("Chat");
-    languageCollection= db!.collection("Languages");
+    languageCollection = db!.collection("Languages");
 
     JobCategoryCollectionsearch = db!.collection("JobCategories");
 
@@ -117,8 +117,8 @@ class Server {
     cursor = await FreelancerCollection!.find();
     freelancerList = await cursor.toList();
 
-    cursor= await languageCollection!.find();
-    languagesList= await cursor.toList();
+    cursor = await languageCollection!.find();
+    languagesList = await cursor.toList();
 
     print("Fetching Completed!");
 
@@ -298,9 +298,8 @@ class CrudFunction {
 
   static approvePayment(String freelancerUsername, String ClientUsername,
       ObjectId contractID, int escrowAmount) async {
-
-        print(freelancerUsername);
-        print(ClientUsername);
+    print(freelancerUsername);
+    print(ClientUsername);
     /**
  Freelancer Database:
  - Total Earnings
@@ -723,9 +722,10 @@ class CrudFunction {
     return clientChats;
   }
 
-  static List<dynamic> findProposalBasedChatsFreelancer(String freelancerUsername) {
-    var chats =
-        Server.chatlist!.where((chat) => chat['FreelancerName'] == freelancerUsername);
+  static List<dynamic> findProposalBasedChatsFreelancer(
+      String freelancerUsername) {
+    var chats = Server.chatlist!
+        .where((chat) => chat['FreelancerName'] == freelancerUsername);
     List clientChats = [];
 
     chats.forEach((chat) {
@@ -753,9 +753,10 @@ class CrudFunction {
     return clientChats;
   }
 
-  static List<dynamic> findContractBasedChatsFreelancer(String freelancerUsername) {
-    var chats =
-        Server.chatlist!.where((chat) => chat['FreelancerName'] == freelancerUsername);
+  static List<dynamic> findContractBasedChatsFreelancer(
+      String freelancerUsername) {
+    var chats = Server.chatlist!
+        .where((chat) => chat['FreelancerName'] == freelancerUsername);
     List clientChats = [];
 
     chats.forEach((chat) {
@@ -1197,39 +1198,38 @@ class CrudFunction {
   }
 
   static Future<void> updateJSS(String userName, String type) async {
-  // Find the freelancer by username
-  var userFind = await Server.FreelancersList!
-      .firstWhereOrNull((user) => user['UserName'] == userName)!;
+    // Find the freelancer by username
+    var userFind = await Server.FreelancersList!
+        .firstWhereOrNull((user) => user['UserName'] == userName)!;
 
-  // Update JobsCompleted based on the type ("refund" or "completion")
-  var jobsCompleted = (type == "refund")
-      ? ((userFind['JobsCompleted'] > 0)
-          ? (userFind['JobsCompleted'] - 1)
-          : 0)
-      : (userFind['JobsCompleted'] + 1);
+    // Update JobsCompleted based on the type ("refund" or "completion")
+    var jobsCompleted = (type == "refund")
+        ? ((userFind['JobsCompleted'] > 0)
+            ? (userFind['JobsCompleted'] - 1)
+            : 0)
+        : (userFind['JobsCompleted'] + 1);
 
-  // Decrease JobsInProgress when a job is completed or refunded
-  var jobsInProgress = (userFind['JobsInProgress'] > 0)
-      ? (userFind['JobsInProgress'] - 1)
-      : 0;
+    // Decrease JobsInProgress when a job is completed or refunded
+    var jobsInProgress =
+        (userFind['JobsInProgress'] > 0) ? (userFind['JobsInProgress'] - 1) : 0;
 
-  // Calculate the new JSS (Job Success Score)
-  var totalJobs = userFind['TotalJobs'];
-  var jss = (totalJobs - jobsInProgress) > 0 
-      ? (jobsCompleted / (totalJobs - jobsInProgress)) * 100 
-      : 0;
+    // Calculate the new JSS (Job Success Score)
+    var totalJobs = userFind['TotalJobs'];
+    var jss = (totalJobs - jobsInProgress) > 0
+        ? (jobsCompleted / (totalJobs - jobsInProgress)) * 100
+        : 0;
 
-  print(jss);
+    print(jss);
 
-  // Update the freelancer's record in MongoDB
-  await Server.FreelancerCollection!.update(
-    where.eq("UserName", userName),
-    modify
-        .set("JobsInProgress", jobsInProgress)
-        .set("JobsCompleted", jobsCompleted)
-        .set("JSS", jss),
-  );
-}
+    // Update the freelancer's record in MongoDB
+    await Server.FreelancerCollection!.update(
+      where.eq("UserName", userName),
+      modify
+          .set("JobsInProgress", jobsInProgress)
+          .set("JobsCompleted", jobsCompleted)
+          .set("JSS", jss),
+    );
+  }
 
   static Future<void> insertReviews(String contractid, String UserName,
       String Name, String ClientUsername, String comment, String rating) async {
@@ -1318,7 +1318,6 @@ class CrudFunction {
     // UserFind = null;
     // print(UserFind);
     Server.refresh();
-
   }
 
   static Future<void> insertsavedjobs(String UserName, String jobid,
@@ -1690,5 +1689,25 @@ class CrudFunction {
 
     //print("##################### $freelancer");
     return image;
+  }
+
+  static Future<List<Map<String, dynamic>>> findWorkHistoryOfFreelancer(
+      String freelancerUserName,
+      String submissionStatus,
+      String contractStatus) async {
+    var contractList = Server.ContractsList!.where((contract) =>
+        contract['FreelancerUsername'] == freelancerUserName &&
+       // contract['SubmissionStatus'] == submissionStatus &&
+        contract['ContractStatus'] == contractStatus);
+
+    List<Map<String, dynamic>> jobsList = []; // Initialize as growable list
+
+    for (var contract in contractList) {
+      var job =
+          Server.JobsList!.firstWhere((job) => job['_id'] == contract['JobID']);
+      jobsList.add(job); // Add job to growable list
+    }
+
+    return jobsList;
   }
 }

@@ -116,7 +116,8 @@ class _ViewOfferState extends State<ViewOffer> {
                         if (CrudFunction.jobContract['ProposalID'] ==
                             'Invited Contract') {
                           await CrudFunction.acceptInvitedContract(
-                              CrudFunction.jobContract['_id']);
+                              CrudFunction.jobContract['_id'],
+                              CrudFunction.UserFind['UserName']);
                         } else {
                           await CrudFunction.acceptContract(
                               CrudFunction.jobContract['_id'],

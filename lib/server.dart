@@ -510,13 +510,34 @@ class CrudFunction {
     Server.refresh();
   }
 
-  static acceptInvitedContract(ObjectId ContractID) async {
+  static acceptInvitedContract(ObjectId ContractID, String freelancerUsername) async {
     await Server.ContractsCollection!.update(
         where.eq("_id", ContractID), modify.set("ContractStatus", 'started'));
 
     (Server.ContractsList!.firstWhereOrNull(
             (contract) => contract['_id'] == ContractID))!['ContractStatus'] =
         'started';
+
+    // await Server.ProposalsCollection!.update(where.eq('_id', PropID),
+    //     modify.set('ProposalStatus', 'ContractStarted'));
+
+    // (Server.ProposalsList!.firstWhereOrNull((prop) => prop['_id'] == PropID))![
+    //     'ProposalStatus'] = 'ContractStarted';
+
+    var freelancer = await Server.FreelancerCollection!
+        .findOne(where.eq("UserName", freelancerUsername));
+    if (freelancer != null) {
+      // Update the local document
+      freelancer['TotalJobs'] = (freelancer['TotalJobs'] ?? 0) + 1;
+      freelancer['JobsInProgress'] = (freelancer['JobsInProgress'] ?? 0) + 1;
+
+      // Persist the changes back to the database
+      await Server.FreelancerCollection!.update(
+          where.eq("UserName", freelancerUsername),
+          modify
+              .set('TotalJobs', freelancer['TotalJobs'])
+              .set('JobsInProgress', freelancer['JobsInProgress']));
+    }
 
     Server.refresh();
   }

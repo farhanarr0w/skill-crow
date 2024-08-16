@@ -18,7 +18,7 @@ class JobActivity extends StatefulWidget {
 
 class _JobActivityState extends State<JobActivity> {
   final ApiService apiService =
-      ApiService(baseUrl: 'http://192.168.0.125:5000');
+      ApiService(baseUrl: 'http://192.168.40.219:5000');
   Map<dynamic, dynamic> recommendedFreelancers = {};
 
   Future<void> getRecommendations(String title, String description) async {

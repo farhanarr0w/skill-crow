@@ -78,7 +78,7 @@ class _FreelancerHomeScreenState extends State<FreelancerHomeScreen> {
     service = LocalNotificationService();
     service.initialize();
     super.initState();
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.125:8080/'));
+    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.40.219:8080/'));
     print('WebSocket connection established');
 
     channel.stream.listen((message) {

@@ -102,7 +102,7 @@ class _ClientSideChatScreenState extends State<ClientSideChatScreen> {
     super.initState();
     // Initialize WebSocket connection
 
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.0.125:8080/'));
+    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.40.219:8080/'));
     print('WebSocket connection established');
 
     // Listen for incoming messages
